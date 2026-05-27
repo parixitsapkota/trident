@@ -34,11 +34,8 @@ ptr dref
 // Seperator
 {} [] () , : ;
 
-// Adative
-+ -
-
-// Multiplactive
-* / %
+// Operator
++ - * / %
 
 // Assignment
 = += -= *= /= %=
@@ -46,7 +43,7 @@ ptr dref
 // Unary
 ++ -- !
 
-// Locical
+// Logical
 && ||
 
 // Compare
@@ -54,4 +51,18 @@ ptr dref
 
 // Shift
 << >>
+
+// int Literal
+1234
+
+// Float Literal
+12.34
+43.56.345
+.78
+
+// String Literal
+"String literal"
+
+// Identifier
+_random_123_word_
 

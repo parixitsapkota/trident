@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "lexer/lexer.h"
+#include "token/token.h"
 #include "utils/utils.h"
 
 int main(int argc, char *argv[]) {
@@ -13,11 +14,14 @@ int main(int argc, char *argv[]) {
 
   char *buffer = s_read_file(argv[1]);
 
-  printf("%s\n", buffer);
+  Tokens tokens = lexer(buffer);
 
-  lexer(buffer);
+  s_free(buffer);
 
-  free(buffer);
+  // print_tokens(&tokens);
+  print_error_tokens(&tokens);
+
+  free_tokens(&tokens);
 
   return 0;
 }

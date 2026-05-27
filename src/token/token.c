@@ -1,143 +1,98 @@
-#include "token.h"
-#include "../utils/utils.h"
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "../utils/utils.h"
+#include "token.h"
 
 #define tokstr(x)                                                              \
   case x:                                                                      \
     return #x
 char *token_kind_to_str(const TokenKind kind) {
   switch (kind) {
-    tokstr(END_OF_TOKEN);
-    tokstr(UNKNOWN);
-    tokstr(INT);
-    tokstr(FLOAT);
-    tokstr(STRING);
-    tokstr(PUB);
-    tokstr(EXTERN);
-    tokstr(CONST);
-    tokstr(VOLATILE);
-    tokstr(FUNC);
-    tokstr(RET);
-    tokstr(IF);
-    tokstr(ELSE);
-    tokstr(LOOP);
-    tokstr(WHILE);
-    tokstr(I8);
-    tokstr(I16);
-    tokstr(I32);
-    tokstr(I64);
-    tokstr(I128);
-    tokstr(U8);
-    tokstr(U16);
-    tokstr(U32);
-    tokstr(U64);
-    tokstr(U128);
-    tokstr(F16);
-    tokstr(F32);
-    tokstr(F64);
-    tokstr(F128);
-    tokstr(STRUCT);
-    tokstr(UNION);
-    tokstr(ENUM);
-    tokstr(ERROR);
-    tokstr(PTR);
-    tokstr(DREF);
-    tokstr(TYPEOF);
-    tokstr(DEFINE);
-    tokstr(IMPORT);
-    tokstr(O_BRACE);
-    tokstr(C_BRACE);
-    tokstr(O_PREN);
-    tokstr(C_PREN);
-    tokstr(O_BRACKET);
-    tokstr(C_BRACKET);
-    tokstr(COMMA);
-    tokstr(COLN);
-    tokstr(SEMICOLN);
-    tokstr(PLUS);
-    tokstr(DASH);
-    tokstr(STAR);
-    tokstr(SLASH);
-    tokstr(PERCENT);
-    tokstr(ASSIGN);
-    tokstr(PLUS_ASSIGN);
-    tokstr(DASH_ASSIGN);
-    tokstr(STAR_ASSIGN);
-    tokstr(SLASH_ASSIGN);
-    tokstr(PERCENT_ASSIGN);
-    tokstr(INCREMENT);
-    tokstr(DECREMENT);
-    tokstr(NEGATE);
-    tokstr(AND);
-    tokstr(OR);
-    tokstr(SHIFT_LEFT);
-    tokstr(SHIFT_RIGHT);
-    tokstr(EQUAL);
-    tokstr(NOT_EQUAL);
-    tokstr(LESSER);
-    tokstr(GREATER);
-    tokstr(LESSER_EQUAL);
-    tokstr(GREATER_EQUAL);
+    tokstr(UNTERMINATED_STRING);
+    tokstr(UNKNOWN_TOKEN);
+    tokstr(UNKNOWN_DIRECTIVE);
   default:
-    return "UNKNOWN_TOKEN";
+    return "?TOKEN?";
   }
 }
 
-void add_token(TokenUnion *self, TokenKind kind, const char *value,
+static int compare_keywords(const void *a, const void *b) {
+  const char *search_word = a;
+  const KeywordMap *map_item = b;
+  return strcmp(search_word, map_item->word);
+}
+
+TokenKind get_keyword_kind(const char *word) {
+  if (!word || *word == '\0') {
+    return IDENTIFIER;
+  }
+  const KeywordMap *match =
+      bsearch(word, keywords, sizeof(keywords) / sizeof(KeywordMap),
+              sizeof(KeywordMap), compare_keywords);
+  return match ? match->kind : IDENTIFIER;
+}
+
+TokenKind get_directive_kind(const char *word) {
+  if (!strcmp("typeof", word)) {
+    return TYPEOF;
+  }
+  if (!strcmp("define", word)) {
+    return DEFINE;
+  }
+  if (!strcmp("import", word)) {
+    return IMPORT;
+  }
+  return UNKNOWN;
+}
+
+void add_token(Tokens *self, const TokenKind kind, const char *value,
                const size_t line, const size_t col) {
-  if (!self) {
-    self = s_malloc(sizeof(Token) * 512);
-    self->token_capacity = sizeof(Token) * 512;
+  const int alloc1024 = 1024;
+  if (!self->tokens) {
+    self->token_capacity = alloc1024;
+    self->tokens = s_malloc(sizeof(Token) * self->token_capacity);
   } else if (self->token_capacity <= self->token_count) {
-    self = s_realloc(self, self->token_capacity + sizeof(Token) * 512);
-    self->token_capacity += sizeof(Token) * 512;
+    self->token_capacity += alloc1024;
+    self->tokens =
+        s_realloc(self->tokens, sizeof(Token) * self->token_capacity);
   }
   self->tokens[self->token_count] = (Token){kind, (char *)value, line, col};
   ++self->token_count;
 }
 
-void print_tokens(const Token *tokens) {
-  for (size_t i = 0; tokens[i].kind != END_OF_TOKEN; ++i) {
-    char *kind = token_kind_to_str(tokens[i].kind);
-    printf("%-15s : %lu:%lu\t%s\n", kind, tokens[i].line, tokens[i].col,
-           tokens[i].value);
-  }
-}
-
-char *lexer_error_kind_to_string(const LexerErrorKind kind) {
+bool is_error_token_kind(const TokenKind kind) {
   switch (kind) {
-  case END_OF_LEX_ERR:
-    return NULL;
+  case UNKNOWN:
   case UNTERMINATED_STRING:
-    return "Unterminated Sstring";
   case UNKNOWN_TOKEN:
-    return "Unknown Token";
   case UNKNOWN_DIRECTIVE:
-    return "Unknown Directive";
+    return 1;
   default:
-    return "Unknown Lexer Error Code!";
+    return 0;
   }
 }
 
-void add_lexer_errors(TokenUnion *self, const LexerErrorKind code,
-                      const size_t token) {
-  if (!self) {
-    self = s_malloc(sizeof(LexerError) * 5);
-    self->error_capacity = sizeof(LexerError) * 5;
-  } else if (self->error_capacity <= self->error_count) {
-    self = s_realloc(self, self->error_capacity + sizeof(LexerError) * 5);
-    self->error_capacity += sizeof(Token) * 5;
+void print_error_tokens(const Tokens *self) {
+  for (size_t i = 0; i <= self->token_count; ++i) {
+    if (is_error_token_kind(self->tokens[i].kind)) {
+      char *msg = token_kind_to_str(self->tokens[i].kind);
+      const size_t line = self->tokens[i].line;
+      const size_t col = self->tokens[i].col;
+      fprintf(stderr, "%s at %lu:%lu\n", msg, line, col);
+    }
   }
-  self->errors[self->error_count] = (LexerError){code, token};
-  ++self->error_count;
 }
 
-void print_lexer_errors(const TokenUnion *self) {
-  for (size_t i = 0; self->errors[i].kind != END_OF_LEX_ERR; ++i) {
-    char *msg = lexer_error_kind_to_string(self->errors[i].kind);
-    size_t line = self->tokens[self->errors[i].token].line;
-    size_t col = self->tokens[self->errors[i].token].line;
-    fprintf(stderr, "%s at %lu:%lu\n", msg, line, col);
+void free_tokens(Tokens *self) {
+  for (size_t i = 0; i <= self->token_count; ++i) {
+    if (self->tokens[i].value != NULL) {
+      s_free(self->tokens[i].value);
+      self->tokens[i].value = NULL;
+    }
   }
+  s_free(self->tokens);
+  self->tokens = NULL;
 }

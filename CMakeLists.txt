@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 4.2)
-project(Anvil C)
+project(anvil C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(Anvil
+add_executable(anvil
   src/main.c
   src/utils/utils.c
   src/utils/utils.h
@@ -13,5 +13,5 @@ add_executable(Anvil
   src/lexer/lexer.h
 )
 
-target_compile_options(Anvil PRIVATE -Wall -Wextra)
+target_compile_options(anvil PRIVATE -Wall -Wextra)
 
