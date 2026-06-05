@@ -18,7 +18,6 @@ int main(int argc, char *argv[]) {
 
   s_free(buffer);
 
-  // print_tokens(&tokens);
   print_error_tokens(&tokens);
 
   free_tokens(&tokens);

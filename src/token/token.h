@@ -1,5 +1,5 @@
-#ifndef ANVIL_TOKEN_H
-#define ANVIL_TOKEN_H
+#ifndef TRIDENT_TOKEN_H
+#define TRIDENT_TOKEN_H
 
 #include "../utils/utils.h"
 #include <stddef.h>
@@ -168,4 +168,4 @@ void add_token(Tokens *self, TokenKind kind, const char *value, size_t line,
                size_t col);
 void free_tokens(Tokens *self);
 
-#endif // ANVIL_TOKEN_H
+#endif // TRIDENT_TOKEN_H
