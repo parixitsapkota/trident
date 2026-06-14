@@ -1,9 +1,89 @@
 #include <ctype.h>
-#include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "../token/token.h"
-#include "../utils/utils.h"
+#include "../../SHI/shi_opa.h"
+#include "lexer.h"
+
+#define tokstr(x)                                                              \
+  case x:                                                                      \
+    return #x
+char *token_kind_to_str(const TokenKind kind) {
+  switch (kind) {
+    tokstr(UNTERMINATED_STRING);
+    tokstr(UNKNOWN_TOKEN);
+    tokstr(UNKNOWN_DIRECTIVE);
+  default:
+    return "?TOKEN?";
+  }
+}
+
+static int compare_keywords(const void *a, const void *b) {
+  const char *search_word = a;
+  const KeywordMap *map_item = b;
+  return strcmp(search_word, map_item->word);
+}
+
+TokenKind get_keyword_kind(const char *word) {
+  if (!word || *word == '\0') {
+    return IDENTIFIER;
+  }
+  const KeywordMap *match =
+      bsearch(word, keywords, sizeof(keywords) / sizeof(KeywordMap),
+              sizeof(KeywordMap), compare_keywords);
+  return match ? match->kind : IDENTIFIER;
+}
+
+TokenKind get_directive_kind(const char *word) {
+  if (!strcmp("typeof", word)) {
+    return TYPEOF;
+  }
+  if (!strcmp("define", word)) {
+    return DEFINE;
+  }
+  if (!strcmp("import", word)) {
+    return IMPORT;
+  }
+  return UNKNOWN;
+}
+
+bool is_token_kind_error(const TokenKind kind) {
+  switch (kind) {
+  case UNKNOWN:
+  case UNTERMINATED_STRING:
+  case UNKNOWN_TOKEN:
+  case UNKNOWN_DIRECTIVE:
+    return 1;
+  default:
+    return 0;
+  }
+}
+
+size_t print_error_token_kind(const char *file_name, SHI_OPA *token_pool) {
+  size_t errors = 0;
+  for (size_t i = 0;; ++i) {
+    Token *token = shi_opa_index(token_pool, i);
+    if (is_token_kind_error(token->kind)) {
+      ++errors;
+      fprintf(stderr, "%s:%lu:%lu: %s\n", file_name, token->line, token->col,
+              token_kind_to_str(token->kind));
+    }
+    if (token->kind == END_OF_TOKEN)
+      break;
+  }
+  if (errors)
+    fprintf(stderr, "%lu ERRORS!\n", errors);
+  return errors;
+}
+
+char *substr(const char *str, const size_t start, const size_t end) {
+  const size_t length = end - start;
+  char *substr = malloc(length + 1);
+  strncpy(substr, str + start, length);
+  substr[length] = '\0';
+  return substr;
+}
 
 char *get_word(const char *buffer, size_t *i, size_t *col) {
   const size_t start = *i;
@@ -11,7 +91,7 @@ char *get_word(const char *buffer, size_t *i, size_t *col) {
     ++*col;
     ++*i;
   }
-  return s_substr(buffer, start, *i);
+  return substr(buffer, start, *i);
 }
 
 char *get_digit(const char *buffer, size_t *i, int *is_float, size_t *col) {
@@ -32,7 +112,7 @@ char *get_digit(const char *buffer, size_t *i, int *is_float, size_t *col) {
     ++*col;
     ++*i;
   }
-  return s_substr(buffer, start, *i);
+  return substr(buffer, start, *i);
 }
 
 char *get_string(const char *buffer, size_t *i, size_t *col, TokenKind *error) {
@@ -50,13 +130,17 @@ char *get_string(const char *buffer, size_t *i, size_t *col, TokenKind *error) {
     ++*i; // Skip char `"`.
     ++*col;
   }
-  return s_substr(buffer, start, *i - 1);
+  return substr(buffer, start, *i - 1);
 }
 
-Tokens lexer(const char *buffer) {
-  Tokens tokens = {0};
+SHI_OPA *lexer(const char *buffer) {
+
+  SHI_OPA *token_pool_head = shi_opa_init(Token, 1024);
+  SHI_OPA *token_pool = token_pool_head;
+
   size_t line = 1, col = 1;
   size_t i = 0;
+  Token c_token = {0};
 
   while (buffer[i] != '\0') {
 
@@ -91,11 +175,12 @@ Tokens lexer(const char *buffer) {
       char *word = get_word(buffer, &i, &col);
       const TokenKind kind = get_keyword_kind(word);
       if (kind != IDENTIFIER) {
-        s_free(word);
-        add_token(&tokens, kind, NULL, line, tcol);
-        continue;
+        free(word);
+        c_token = (Token){kind, NULL, line, tcol};
+      } else {
+        c_token = (Token){kind, word, line, tcol};
       }
-      add_token(&tokens, kind, word, line, tcol);
+      shi_opa_push(token_pool, c_token);
       continue;
     }
 
@@ -104,7 +189,8 @@ Tokens lexer(const char *buffer) {
       int is_float = 0;
       const char *digit = get_digit(buffer, &i, &is_float, &col);
       const TokenKind kind = is_float ? FLOAT : INT;
-      add_token(&tokens, kind, digit, line, tcol);
+      c_token = (Token){kind, (char *)digit, line, tcol};
+      shi_opa_push(token_pool, c_token);
       continue;
     }
 
@@ -113,10 +199,11 @@ Tokens lexer(const char *buffer) {
       TokenKind error = UNKNOWN;
       const char *string = get_string(buffer, &i, &col, &error);
       if (error != UNKNOWN) {
-        add_token(&tokens, error, NULL, line, tcol);
-        continue;
+        c_token = (Token){error, NULL, line, tcol};
+      } else {
+        c_token = (Token){STRING, (char *)string, line, tcol};
       }
-      add_token(&tokens, STRING, string, line, tcol);
+      shi_opa_push(token_pool, c_token);
       continue;
     }
 
@@ -127,42 +214,44 @@ Tokens lexer(const char *buffer) {
       const char *directive = get_word(buffer, &i, &col);
       TokenKind kind = get_directive_kind(directive);
       if (kind != UNKNOWN) {
-        add_token(&tokens, kind, directive, line, tcol);
-        continue;
+        c_token = (Token){kind, (char *)directive, line, tcol};
+      } else {
+        c_token = (Token){UNKNOWN_DIRECTIVE, (char *)directive, line, tcol};
       }
-      add_token(&tokens, UNKNOWN_DIRECTIVE, directive, line, tcol);
+      shi_opa_push(token_pool, c_token);
       continue;
     }
 
 // Handle operators and seperators.
+#define incLC                                                                  \
+  ++col;                                                                       \
+  ++i
+
 #define add_s(a, b)                                                            \
   case a:                                                                      \
-    add_token(&tokens, b, NULL, line, tcol);                                   \
+    c_token = (Token){b, NULL, line, tcol};                                    \
     break
 
 #define add_2s(a, b, c, d)                                                     \
   case a:                                                                      \
     if (buffer[i + 1] == b) {                                                  \
-      add_token(&tokens, d, NULL, line, tcol);                                 \
-      ++col;                                                                   \
-      ++i;                                                                     \
+      c_token = (Token){d, NULL, line, tcol};                                  \
+      incLC;                                                                   \
     } else {                                                                   \
-      add_token(&tokens, c, NULL, line, tcol);                                 \
+      c_token = (Token){c, NULL, line, tcol};                                  \
     }                                                                          \
     break
 
 #define add_2sc(a, b, c, d, e)                                                 \
   case a:                                                                      \
     if (buffer[i + 1] == b) {                                                  \
-      add_token(&tokens, d, NULL, line, tcol);                                 \
-      ++col;                                                                   \
-      ++i;                                                                     \
+      c_token = (Token){d, NULL, line, tcol};                                  \
+      incLC;                                                                   \
     } else if (buffer[i + 1] == a) {                                           \
-      add_token(&tokens, e, NULL, line, tcol);                                 \
-      ++col;                                                                   \
-      ++i;                                                                     \
+      c_token = (Token){e, NULL, line, tcol};                                  \
+      incLC;                                                                   \
     } else {                                                                   \
-      add_token(&tokens, c, NULL, line, tcol);                                 \
+      c_token = (Token){c, NULL, line, tcol};                                  \
     }                                                                          \
     break
 
@@ -191,16 +280,14 @@ Tokens lexer(const char *buffer) {
       add_2sc('<', '=', LESSER, LESSER_EQUAL, SHIFT_LEFT);
       add_2sc('>', '=', GREATER, GREATER_EQUAL, SHIFT_RIGHT);
     default:
-      add_token(&tokens, UNKNOWN_TOKEN, NULL, line, tcol);
+      c_token = (Token){UNKNOWN_TOKEN, NULL, line, tcol};
     }
 
-#undef add_s
-#undef add_2s
-#undef add_2sc
-
-    ++col;
-    ++i;
+    shi_opa_push(token_pool, c_token);
+    incLC;
   }
-  putc('\n', stdout);
-  return tokens;
+
+  c_token = (Token){END_OF_TOKEN, NULL, 0, 0};
+  shi_opa_push(token_pool, c_token);
+  return token_pool_head;
 }

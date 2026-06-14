@@ -1,9 +1,9 @@
 # Trident Compiler
 An experimental compiler for the Trident language.
 ## Build & Run
-- Build Requirements : `clang make cmake`
+- Build Requirements : `clang make`
 ```bash
-make release
+make MODE=release
 ```
 - Run
 ```bash
