@@ -1,9 +1,19 @@
 #include <ctype.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "../token/token.h"
-#include "../utils/utils.h"
+#include "../../SHI/shi_opa.h"
+#include "lexer.h"
+
+char *substr(const char *str, const size_t start, const size_t end) {
+  const size_t length = end - start;
+  char *substr = malloc(length + 1);
+  strncpy(substr, str + start, length);
+  substr[length] = '\0';
+  return substr;
+}
 
 char *get_word(const char *buffer, size_t *i, size_t *col) {
   const size_t start = *i;
@@ -11,7 +21,7 @@ char *get_word(const char *buffer, size_t *i, size_t *col) {
     ++*col;
     ++*i;
   }
-  return s_substr(buffer, start, *i);
+  return substr(buffer, start, *i);
 }
 
 char *get_digit(const char *buffer, size_t *i, int *is_float, size_t *col) {
@@ -32,7 +42,7 @@ char *get_digit(const char *buffer, size_t *i, int *is_float, size_t *col) {
     ++*col;
     ++*i;
   }
-  return s_substr(buffer, start, *i);
+  return substr(buffer, start, *i);
 }
 
 char *get_string(const char *buffer, size_t *i, size_t *col, TokenKind *error) {
@@ -50,11 +60,14 @@ char *get_string(const char *buffer, size_t *i, size_t *col, TokenKind *error) {
     ++*i; // Skip char `"`.
     ++*col;
   }
-  return s_substr(buffer, start, *i - 1);
+  return substr(buffer, start, *i - 1);
 }
 
-Tokens lexer(const char *buffer) {
-  Tokens tokens = {0};
+Token *lexer(const char *buffer) {
+
+  SHI_OPA *pool_head = shi_opa_init(Token, 5);
+  SHI_OPA *pool = pool_head;
+
   size_t line = 1, col = 1;
   size_t i = 0;
 
@@ -91,7 +104,7 @@ Tokens lexer(const char *buffer) {
       char *word = get_word(buffer, &i, &col);
       const TokenKind kind = get_keyword_kind(word);
       if (kind != IDENTIFIER) {
-        s_free(word);
+        free(word);
         add_token(&tokens, kind, NULL, line, tcol);
         continue;
       }
@@ -193,10 +206,6 @@ Tokens lexer(const char *buffer) {
     default:
       add_token(&tokens, UNKNOWN_TOKEN, NULL, line, tcol);
     }
-
-#undef add_s
-#undef add_2s
-#undef add_2sc
 
     ++col;
     ++i;

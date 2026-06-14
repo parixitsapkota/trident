@@ -1,9 +1,10 @@
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../../SHI/shi_file.h"
 #include "lexer/lexer.h"
 #include "token/token.h"
-#include "utils/utils.h"
 
 int main(int argc, char *argv[]) {
 
@@ -12,15 +13,13 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  char *buffer = s_read_file(argv[1]);
+  char *buffer = shi_file_read(argv[1], NULL);
 
   Tokens tokens = lexer(buffer);
 
-  s_free(buffer);
+  free(buffer);
 
   print_error_tokens(&tokens);
-
-  free_tokens(&tokens);
 
   return 0;
 }
