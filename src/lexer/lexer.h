@@ -157,6 +157,7 @@ char *token_kind_to_str(TokenKind kind);
 TokenKind get_keyword_kind(const char *word);
 TokenKind get_directive_kind(const char *word);
 bool is_token_kind_error(TokenKind kind);
+size_t print_error_token_kind(const char *file_name, SHI_OPA *token_pool);
 
 SHI_OPA *lexer(const char *buffer);
 

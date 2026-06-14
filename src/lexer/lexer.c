@@ -60,6 +60,23 @@ bool is_token_kind_error(const TokenKind kind) {
   }
 }
 
+size_t print_error_token_kind(const char *file_name, SHI_OPA *token_pool) {
+  size_t errors = 0;
+  for (size_t i = 0;; ++i) {
+    Token *token = shi_opa_index(token_pool, i);
+    if (is_token_kind_error(token->kind)) {
+      ++errors;
+      fprintf(stderr, "%s:%lu:%lu: %s\n", file_name, token->line, token->col,
+              token_kind_to_str(token->kind));
+    }
+    if (token->kind == END_OF_TOKEN)
+      break;
+  }
+  if (errors)
+    fprintf(stderr, "%lu ERRORS!\n", errors);
+  return errors;
+}
+
 char *substr(const char *str, const size_t start, const size_t end) {
   const size_t length = end - start;
   char *substr = malloc(length + 1);
@@ -160,9 +177,9 @@ SHI_OPA *lexer(const char *buffer) {
       if (kind != IDENTIFIER) {
         free(word);
         c_token = (Token){kind, NULL, line, tcol};
-        continue;
+      } else {
+        c_token = (Token){kind, word, line, tcol};
       }
-      c_token = (Token){kind, word, line, tcol};
       shi_opa_push(token_pool, c_token);
       continue;
     }
@@ -183,9 +200,9 @@ SHI_OPA *lexer(const char *buffer) {
       const char *string = get_string(buffer, &i, &col, &error);
       if (error != UNKNOWN) {
         c_token = (Token){error, NULL, line, tcol};
-        continue;
+      } else {
+        c_token = (Token){STRING, (char *)string, line, tcol};
       }
-      c_token = (Token){STRING, (char *)string, line, tcol};
       shi_opa_push(token_pool, c_token);
       continue;
     }
@@ -198,14 +215,18 @@ SHI_OPA *lexer(const char *buffer) {
       TokenKind kind = get_directive_kind(directive);
       if (kind != UNKNOWN) {
         c_token = (Token){kind, (char *)directive, line, tcol};
-        continue;
+      } else {
+        c_token = (Token){UNKNOWN_DIRECTIVE, (char *)directive, line, tcol};
       }
-      c_token = (Token){UNKNOWN_DIRECTIVE, (char *)directive, line, tcol};
       shi_opa_push(token_pool, c_token);
       continue;
     }
 
 // Handle operators and seperators.
+#define incLC                                                                  \
+  ++col;                                                                       \
+  ++i
+
 #define add_s(a, b)                                                            \
   case a:                                                                      \
     c_token = (Token){b, NULL, line, tcol};                                    \
@@ -215,8 +236,7 @@ SHI_OPA *lexer(const char *buffer) {
   case a:                                                                      \
     if (buffer[i + 1] == b) {                                                  \
       c_token = (Token){d, NULL, line, tcol};                                  \
-      ++col;                                                                   \
-      ++i;                                                                     \
+      incLC;                                                                   \
     } else {                                                                   \
       c_token = (Token){c, NULL, line, tcol};                                  \
     }                                                                          \
@@ -226,12 +246,10 @@ SHI_OPA *lexer(const char *buffer) {
   case a:                                                                      \
     if (buffer[i + 1] == b) {                                                  \
       c_token = (Token){d, NULL, line, tcol};                                  \
-      ++col;                                                                   \
-      ++i;                                                                     \
+      incLC;                                                                   \
     } else if (buffer[i + 1] == a) {                                           \
       c_token = (Token){e, NULL, line, tcol};                                  \
-      ++col;                                                                   \
-      ++i;                                                                     \
+      incLC;                                                                   \
     } else {                                                                   \
       c_token = (Token){c, NULL, line, tcol};                                  \
     }                                                                          \
@@ -264,11 +282,12 @@ SHI_OPA *lexer(const char *buffer) {
     default:
       c_token = (Token){UNKNOWN_TOKEN, NULL, line, tcol};
     }
-    shi_opa_push(token_pool, c_token);
 
-    ++col;
-    ++i;
+    shi_opa_push(token_pool, c_token);
+    incLC;
   }
-  putc('\n', stdout);
+
+  c_token = (Token){END_OF_TOKEN, NULL, 0, 0};
+  shi_opa_push(token_pool, c_token);
   return token_pool_head;
 }
