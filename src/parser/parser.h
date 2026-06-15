@@ -1,6 +1,9 @@
 #ifndef TRIDENT_LEXER_H
 #define TRIDENT_LEXER_H
 
+#include <stdbool.h>
+#include <stddef.h>
+
 #include "../../SHI/shi_opa.h"
 #include "../lexer/lexer.h"
 
@@ -92,15 +95,15 @@ struct AstNode {
 
 SHI_OPA *parser(const SHI_OPA *token_pool);
 
-void parse_atom(const SHI_OPA *token_pool, size_t index, SHI_OPA **ast);
-void parse_func_call(const SHI_OPA *token_pool, size_t index, SHI_OPA **ast);
-void parse_expr(const SHI_OPA *token_pool, size_t index, SHI_OPA **ast);
+void parse_atom(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
+void parse_func_call(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
+void parse_expr(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
 
-void parse_var_decl(const SHI_OPA *token_pool, size_t index, SHI_OPA **ast);
-void parse_stion(const SHI_OPA *token_pool, size_t index, SHI_OPA **ast);
-void parse_while(const SHI_OPA *token_pool, size_t index, SHI_OPA **ast);
-void parse_if_stmt(const SHI_OPA *token_pool, size_t index, SHI_OPA **ast);
-void parse_body(const SHI_OPA *token_pool, size_t index, SHI_OPA **ast);
-void parse_func_decl(const SHI_OPA *token_pool, size_t index, SHI_OPA **ast);
+void parse_var_decl(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
+void parse_stion(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
+void parse_while(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
+void parse_if_stmt(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
+void parse_body(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
+void parse_func_decl(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
 
 #endif // TRIDENT_PARSER_H
