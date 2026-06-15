@@ -90,20 +90,43 @@ typedef enum {
 
 struct AstNode {
   AstKind kind;
-  void *node;
+  union {
+    AstCompound compound;
+    AstAtom atom;
+    AstFuncCall func_call;
+    AstUnary unary;
+    AstBinary binary;
+    AstVarDecl var_decl;
+    AstStion ast_station;
+    AstWhile while_;
+    AstIfStmt if_stmt;
+    AstFuncDecl func_decl;
+  };
 };
 
+typedef struct {
+  SHI_OPA *token_pool;
+  SHI_OPA *ast;
+  size_t index;
+} Parser;
+
 SHI_OPA *parser(const SHI_OPA *token_pool);
+Token *parser_current(Parser *self);
+TokenKind parser_current_kind(Parser *self);
+Token *parser_peak(Parser *self);
+TokenKind parser_peak_kind(Parser *self);
+void parser_consume(Parser *self);
+bool parser_Expect(TokenKind kind);
 
-void parse_atom(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
-void parse_func_call(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
-void parse_expr(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
+void parse_atom(Parser *p);
+void parse_func_call(Parser *p);
+void parse_expr(Parser *p);
 
-void parse_var_decl(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
-void parse_stion(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
-void parse_while(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
-void parse_if_stmt(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
-void parse_body(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
-void parse_func_decl(const SHI_OPA *token_pool, size_t *index, SHI_OPA *ast);
+void parse_var_decl(Parser *p);
+void parse_stion(Parser *p);
+void parse_while(Parser *p);
+void parse_if_stmt(Parser *p);
+void parse_body(Parser *p);
+void parse_func_decl(Parser *p);
 
 #endif // TRIDENT_PARSER_H
