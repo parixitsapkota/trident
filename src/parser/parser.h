@@ -106,17 +106,19 @@ struct AstNode {
 
 typedef struct {
   SHI_OPA *token_pool;
-  SHI_OPA *ast;
+  SHI_OPA *ast_pool;
+  SHI_OPA *ast_pool_head;
   size_t index;
 } Parser;
 
 SHI_OPA *parser(const SHI_OPA *token_pool);
+
 Token *parser_current(Parser *self);
 TokenKind parser_current_kind(Parser *self);
-Token *parser_peak(Parser *self);
-TokenKind parser_peak_kind(Parser *self);
+Token *parser_peak(Parser *self, int offset);
+TokenKind parser_peak_kind(Parser *self, int offset);
 void parser_consume(Parser *self);
-bool parser_Expect(TokenKind kind);
+void parser_Expect(Parser *self, TokenKind kind);
 
 void parse_atom(Parser *p);
 void parse_func_call(Parser *p);
