@@ -6,6 +6,17 @@
 #include "../../SHI/shi_opa.h"
 #include "lexer.h"
 
+void free_token_pool(SHI_OPA *token_pool) {
+  Token *token = shi_opa_index(token_pool, 0);
+  for (size_t i = 0; token->kind == END_OF_TOKEN; ++i) {
+    token = shi_opa_index(token_pool, i);
+    if (!token->value) {
+      free(token->value);
+    }
+  }
+  free_mem_chain(token_pool);
+}
+
 #define tokstr(x)                                                              \
   case x:                                                                      \
     return #x
