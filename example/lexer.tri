@@ -1,68 +1,57 @@
+// Keywords
 // Qualifiers
-pub extern const volatile
+inline extern static volatile register pub var const
+
+// Control flow
+if else do loop while for break continue switch case default
 
 // Function
-func ret
+fn return
 
-// conditional
-if else
+// Type
+bool false true type void f32 f64 f128 i8 i16 i32 i64 i128 isize u8 u16 u32 u64 u128 usize struct union enum error
 
-// Loop
-loop while
-
-// Signed int
-i8 i16 i32 i64 i128
-
-// Unsigned int
-u8 u16 u32 u64 u128
-
-// Float
-f16 f32 f64 f128
-
-// Struct & Union
-struct union
-
-// Enumerator
-enum error
-
-// Pointers
-ptr dref
-
-// Directives
+// Compiler directives
 @typeof @define @import
 
 // Seperator
-{} [] () , : ;
+(){}?
 
-// Operator
-+ - * / %
-
-// Assignment
-= += -= *= /= %=
-
-// Unary
-++ -- !
-
-// Logical
-&& ||
-
-// Compare
- == != < > <= >=
-
-// Shift
+// operator
+[] .
+* / % + -
+++ --
+&
+< <= > >= == !=
 << >>
+~ ^ |
+! && ||
+= += -= *= /= %= <<= >>= &= ^=
+,
 
-// int Literal
-1234
+//Number literals
+// Decimal int
+99
+// Hex int
+0xff
+// Octal int
+0_77
+// Decimal float
+12.984e-2
+.984
+// Hex float
+0xF5.2Ep-2
+0x0.FFp-2
 
-// Float Literal
-12.34
-43.56.345
-.78
-
+"中文"
 // String Literal
 "String literal"
+
+// Character Literal
+'Char literal'
 
 // Identifier
 _random_123_word_
 
+// UTF-8 Identifier
+@"中文"

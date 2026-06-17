@@ -1,13 +1,20 @@
+# Trident language Spec
+
 # Lexical
 
 ## Lexical Rules
 
-- DECIMAL_INTS `[0-9][0-9]*U?`
-- OCTAL*INTS `0*[0-7]+U?`
-- HEX_INTS `0x[0-9A-F]+U?`
-- DECIMAL_FLOATS `[0-9]*(.[0-9]*(e[-+]?[0-9]+)?)`
-- HEX_FLOATS `0x[0-9A-F]+(.[0-9A-F]*)?p[-+]?[0-9A-F]+`
-- IDENTIFIERS `[_a-zA-Z][_a-zA-Z0-9]*`
+- DECIMAL_INTS : `[0-9][0-9]*U?`
+- OCTAL_INTS : `0_[0-7]+U?`
+- HEX_INTS : `0x[0-9A-F]+U?`
+- DECIMAL_FLOATS : `[0-9]*(.[0-9]*(e[-+]?[0-9]+)?)`
+- OCTAL_FLOATS : `0_[0-7]+(.[0-7]*)?p[-+]?[0-7]+`
+- HEX_FLOATS : `0x[0-9A-F]+(.[0-9A-F]*)?p[-+]?[0-9A-F]+`
+- IDENTIFIERS : `[_a-zA-Z][_a-zA-Z0-9]*`
+- UTF-8_IDENTIFIERS : `@"[^"\n]*"`
+- STRING : `"[^"\n]*"`
+- CHARACTER : `'[^'\n]*'`
+- DIRECTIVES : `@[_a-zA-Z][_a-zA-Z0-9]*`
 
 ## comments
 
@@ -24,7 +31,7 @@ fn main() {
 
 - Qualifiers  
   `inline` `extern` `static` `volatile`  
-  `register` `restrict` `pub` `var` `const`
+  `register` `pub` `var` `const`
 
 - Control flow  
   `if` `else` `do` `while` `for` `break`  
@@ -76,53 +83,55 @@ A scalar type represents a atomic value.
 | Decimal float   | 12.984e-2  |
 | Hex float       | 0xF5.2Ep-2 |
 
-> _Integer Overflow : Example, in case of a `u8`, the value 256 becomes 0, the value 257 becomes 1, and so on._
+> _Integer Overflow : Example, in case of a `u8`, the value 256 becomes 0, the value 257 becomes 1, and so forth._
 
 ## Boolean
 
 Boolean type has two possible values: `true` and `false`. Booleans are one byte in size.
 
 # Compound Types
-> *TODO :* Define compound types like arrays and structs
+
+> _TODO :_ Define compound types like arrays and structs
 
 # Operator Precedence
 
-| P.  | Operator  | Description                                    | Associativity |
-| --- | --------- | ---------------------------------------------- | ------------- |
-| 1   | ()        | Parentheses                                    | Left-to-right |
-| 1   | ++ --     | Suffix increment / decrement                   | Left-to-right |
-| 1   | func()    | Function call                                  | Left-to-right |
-| 1   | []        | Array subscripting                             | Left-to-right |
-| 1   | .         | Member access                                  | Left-to-right |
-| 1   | @u32toi32 | Compiler directives                            | Left-to-right |
-| 2   | ++ --     | Prefix increment / decrement                   | Right-to-left |
-| 2   | + -       | Unary plus and minus                           | Right-to-left |
-| 2   | ! ~       | Logical NOT, bitwise NOT                       | Right-to-left |
-| 2   | \*        | Dereference                                    | Right-to-left |
-| 2   | &         | Reference                                      | Right-to-left |
-| 4   | + -       | Addition and subtraction                       | Left-to-right |
-| 5   | << >>     | Bitwise left shift and right shift             | Left-to-right |
-| 6   | < <=      | less than, less than or equal to               | Left-to-right |
-| 6   | > >=      | greater than, greater than or equal to         | Left-to-right |
-| 7   | == !=     | Relational equal to, not equal to              | Left-to-right |
-| 8   | &         | Bitwise AND                                    | Left-to-right |
-| 9   | ^         | Bitwise XOR (exclusive OR)                     | Left-to-right |
-| 10  | \|        | Bitwise OR (inclusive OR)                      | Left-to-right |
-| 11  | &&        | Logical AND                                    | Left-to-right |
-| 12  | \|\|      | Logical OR                                     | Left-to-right |
-| 13  | ?:        | Ternary conditional                            | Right-to-left |
-| 14  | =         | assignment                                     | Right-to-left |
-| 14  | += -=     | Assignment by sum and difference               | Right-to-left |
-| 14  | \*= /= %= | Assignment by product, division, and mod       | Right-to-left |
-| 14  | <<= >>=   | Assignment by bitshift left and bitshift right | Right-to-left |
-| 14  | &= ^=     | Assignment by bitwise AND, XOR, and OR         | Right-to-left |
-| 15  | ,         | Comma                                          | Left-to-right |
+| P.  | Operator   | Description                                    | Associativity |
+| --- | ---------- | ---------------------------------------------- | ------------- |
+| 1   | ()         | Parentheses                                    | Left-to-right |
+| 1   | ++ --      | Suffix increment / decrement                   | Left-to-right |
+| 1   | func()     | Function call                                  | Left-to-right |
+| 1   | []         | Array subscripting                             | Left-to-right |
+| 1   | .          | Member access                                  | Left-to-right |
+| 1   | @u32toi32  | Expression compiler directives                 | Left-to-right |
+| 2   | ++ --      | Prefix increment / decrement                   | Right-to-left |
+| 2   | + -        | Unary plus and minus                           | Right-to-left |
+| 2   | ! ~        | Logical NOT, bitwise NOT                       | Right-to-left |
+| 2   | \*         | Dereference                                    | Right-to-left |
+| 2   | &          | Reference                                      | Right-to-left |
+| 3   | \* / %     | Multiplication, division, and remainder        | Left-to-right |
+| 4   | + -        | Addition and subtraction                       | Left-to-right |
+| 5   | << >>      | Bitwise left shift and right shift             | Left-to-right |
+| 6   | < <=       | less than, less than or equal to               | Left-to-right |
+| 6   | > >=       | greater than, greater than or equal to         | Left-to-right |
+| 7   | == !=      | Relational equal to, not equal to              | Left-to-right |
+| 8   | &          | Bitwise AND                                    | Left-to-right |
+| 9   | ^          | Bitwise XOR (exclusive OR)                     | Left-to-right |
+| 10  | \|         | Bitwise OR (inclusive OR)                      | Left-to-right |
+| 11  | &&         | Logical AND                                    | Left-to-right |
+| 12  | \|\|       | Logical OR                                     | Left-to-right |
+| 13  | .. ..< ..> | Range                                          | Left-to-right |
+| 14  | =          | assignment                                     | Right-to-left |
+| 14  | += -=      | Assignment by sum and difference               | Right-to-left |
+| 14  | \*= /= %=  | Assignment by product, division, and mod       | Right-to-left |
+| 14  | <<= >>=    | Assignment by bitshift left and bitshift right | Right-to-left |
+| 14  | &= ^=      | Assignment by bitwise AND, XOR, and OR         | Right-to-left |
+| 15  | ,          | Comma                                          | Left-to-right |
 
 ## Identifiers
 
 UTF-8 string Identifiers :
 
-- This can contain any symbols but no escaping.
+- using the @"" syntax Identifiers can contain any UTF-8 symbol, But don't escape sequences and must remain on a single line.
 
 ```trident
 var @"中文" : []u8;

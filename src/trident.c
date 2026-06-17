@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 
   SHI_OPA *token_pool = lexer(buffer);
   free(buffer);
-
+  print_tokens(token_pool);
   size_t errors = print_error_token_kind(argv[1], token_pool);
 
   if (errors) {

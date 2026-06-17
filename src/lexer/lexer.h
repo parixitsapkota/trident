@@ -7,43 +7,53 @@
 #include "../../SHI/shi_opa.h"
 
 typedef enum {
-  // Helper_Tokens
-  END_OF_TOKEN,
-  UNKNOWN,
-  // Identifier
-  IDENTIFIER,
-  // Literals
-  INT,
-  FLOAT,
-  STRING,
+  // Keywords
   // Qualifier
   PUB,
   EXTERN,
+  INLINE,
+  STATIC,
+  REGISTER,
   CONST,
+  VAR,
   VOLATILE,
   // Function
   FUNC,
   RET,
-  // Conditional
+  // Control flow
   IF,
   ELSE,
-  // Loop
   LOOP,
+  DO,
   WHILE,
+  FOR,
+  BREAK,
+  CONTINUE,
+  SWITCH,
+  CASE,
+  DEFAULT,
+  // Types
+  TYPE,
+  VOID,
+  // Boolean
+  BOOL,
+  TRUE,
+  FALSE,
   // Signed_Int
   I8,
   I16,
   I32,
   I64,
   I128,
+  ISIZE,
   // Unsigned_Int
   U8,
   U16,
   U32,
   U64,
   U128,
+  USIZE,
   // Float
-  F16,
   F32,
   F64,
   F128,
@@ -53,9 +63,12 @@ typedef enum {
   // Enumerator
   ENUM,
   ERROR,
-  // Pointers
-  PTR,
-  DREF,
+  // Identifier & Literals
+  IDENTIFIER,
+  INT,
+  FLOAT,
+  STRING,
+  CHARACTER,
   // Directive
   TYPEOF,
   DEFINE,
@@ -67,22 +80,18 @@ typedef enum {
   C_PREN,
   O_BRACKET,
   C_BRACKET,
-  COMMA,
-  COLN,
   SEMICOLON,
+  COLN,
+  WHAT,
   // Operator
+  COMMA,
+  DOT,
+  DOT_DOT,
   PLUS,
   DASH,
   STAR,
   SLASH,
   PERCENT,
-  // Assignment
-  ASSIGN,
-  PLUS_ASSIGN,
-  DASH_ASSIGN,
-  STAR_ASSIGN,
-  SLASH_ASSIGN,
-  PERCENT_ASSIGN,
   // Unary
   INCREMENT,
   DECREMENT,
@@ -90,6 +99,12 @@ typedef enum {
   // Logical
   LOGICAL_AND,
   LOGICAL_OR,
+  LOGICAL_XOR,
+  // Bitwise Logic
+  BITWISE_NOT,
+  ANDPERCENT,
+  BITWISE_OR,
+  BITWISE_XOR,
   // Shift
   SHIFT_LEFT,
   SHIFT_RIGHT,
@@ -100,10 +115,26 @@ typedef enum {
   GREATER,
   LESSER_EQUAL,
   GREATER_EQUAL,
+  // Assignment
+  ASSIGN,
+  PLUS_ASSIGN,
+  DASH_ASSIGN,
+  STAR_ASSIGN,
+  SLASH_ASSIGN,
+  PERCENT_ASSIGN,
+  SHIFT_LEFT_ASSIGN,
+  SHIFT_RIGHT_ASSIGN,
+  AND_ASSIGN,
+  OR_ASSIGN,
+  XOR_ASSIGN,
   // Error
   UNTERMINATED_STRING,
+  UNTERMINATED_CHAR,
   UNKNOWN_TOKEN,
-  UNKNOWN_DIRECTIVE
+  UNKNOWN_DIRECTIVE,
+  // End of Tokens & unknown
+  END_OF_TOKEN,
+  UNKNOWN,
 } TokenKind;
 
 typedef struct {
@@ -115,34 +146,49 @@ static const KeywordMap keywords[] = {
     /*
      * bsearch keyword map
      */
+    {"bool", BOOL},
+    {"break", BREAK},
+    {"case", CASE},
     {"const", CONST},
-    {"dref", DREF},
+    {"continue", CONTINUE},
+    {"default", DEFAULT},
+    {"do", DO},
     {"else", ELSE},
     {"enum", ENUM},
     {"error", ERROR},
     {"extern", EXTERN},
     {"f128", F128},
-    {"f16", F16},
     {"f32", F32},
     {"f64", F64},
-    {"func", FUNC},
+    {"false", FALSE},
+    {"fn", FUNC},
+    {"for", FOR},
     {"i128", I128},
     {"i16", I16},
     {"i32", I32},
     {"i64", I64},
     {"i8", I8},
     {"if", IF},
+    {"inline", INLINE},
+    {"isize", ISIZE},
     {"loop", LOOP},
-    {"ptr", PTR},
     {"pub", PUB},
-    {"ret", RET},
+    {"register", REGISTER},
+    {"return", RET},
+    {"static", STATIC},
     {"struct", STRUCT},
+    {"switch", SWITCH},
+    {"true", TRUE},
+    {"type", TYPE},
     {"u128", U128},
     {"u16", U16},
     {"u32", U32},
     {"u64", U64},
     {"u8", U8},
     {"union", UNION},
+    {"usize", USIZE},
+    {"var", VAR},
+    {"void", VOID},
     {"volatile", VOLATILE},
     {"while", WHILE}};
 
@@ -157,6 +203,7 @@ char *token_kind_to_str(TokenKind kind);
 TokenKind get_keyword_kind(const char *word);
 TokenKind get_directive_kind(const char *word);
 bool is_token_kind_error(TokenKind kind);
+void print_tokens(SHI_OPA *token_pool);
 size_t print_error_token_kind(const char *file_name, SHI_OPA *token_pool);
 
 SHI_OPA *lexer(const char *buffer);
