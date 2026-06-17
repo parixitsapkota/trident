@@ -1,5 +1,5 @@
-#ifndef TRIDENT_LEXER_H
-#define TRIDENT_LEXER_H
+#ifndef TRIDENT_PARSER_H
+#define TRIDENT_PARSER_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -160,5 +160,6 @@ bool is_token_kind_error(TokenKind kind);
 size_t print_error_token_kind(const char *file_name, SHI_OPA *token_pool);
 
 SHI_OPA *lexer(const char *buffer);
+void free_token_pool(SHI_OPA *token_pool);
 
-#endif // TRIDENT_LEXER_H
+#endif // TRIDENT_PARSER_H

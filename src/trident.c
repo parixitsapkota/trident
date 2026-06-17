@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "lexer/lexer.h"
+#include "parser/parser.h"
 
 #define SHI_OPA_IMPLEMENTATION
 #include "../SHI/shi_opa.h"
@@ -22,8 +23,15 @@ int main(int argc, char *argv[]) {
   free(buffer);
 
   size_t errors = print_error_token_kind(argv[1], token_pool);
-  if (errors)
+
+  if (errors) {
+    free_token_pool(token_pool);
     return errors;
+  }
+
+  parser(token_pool);
+
+  free_token_pool(token_pool);
 
   return 0;
 }
