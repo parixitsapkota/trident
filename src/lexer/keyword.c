@@ -10,7 +10,7 @@ struct keywords {
 };
 
 static struct keywords wordlist[] = {
-    // sdfas
+    // keywords
     {"", 0},
     {"", 0},
     {"u8", U8},
@@ -85,7 +85,7 @@ static struct keywords wordlist[] = {
     {"", 0},
     {"", 0},
     {"pub", PUB}
-    // asf
+    // keywords
 };
 
 static uint8_t weight_table[] = {
