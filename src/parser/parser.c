@@ -1,8 +1,8 @@
+#include "parser.h"
+#include "../../SHI/shi_opa.h"
+
 #include <stddef.h>
 #include <stdio.h>
-
-#include "../../SHI/shi_opa.h"
-#include "parser.h"
 
 Parser init_parser(const SHI_OPA *token_pool, const SHI_OPA *ast_pool) {
   Parser p = {0};

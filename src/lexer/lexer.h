@@ -1,10 +1,10 @@
 #ifndef TRIDENT_PARSER_H
 #define TRIDENT_PARSER_H
 
+#include "../../SHI/shi_opa.h"
+
 #include <stdbool.h>
 #include <stddef.h>
-
-#include "../../SHI/shi_opa.h"
 
 typedef enum {
   // Keywords
@@ -142,56 +142,6 @@ typedef struct {
   TokenKind kind;
 } KeywordMap;
 
-static const KeywordMap keywords[] = {
-    /*
-     * bsearch keyword map
-     */
-    {"bool", BOOL},
-    {"break", BREAK},
-    {"case", CASE},
-    {"const", CONST},
-    {"continue", CONTINUE},
-    {"default", DEFAULT},
-    {"do", DO},
-    {"else", ELSE},
-    {"enum", ENUM},
-    {"error", ERROR},
-    {"extern", EXTERN},
-    {"f128", F128},
-    {"f32", F32},
-    {"f64", F64},
-    {"false", FALSE},
-    {"fn", FUNC},
-    {"for", FOR},
-    {"i128", I128},
-    {"i16", I16},
-    {"i32", I32},
-    {"i64", I64},
-    {"i8", I8},
-    {"if", IF},
-    {"inline", INLINE},
-    {"isize", ISIZE},
-    {"loop", LOOP},
-    {"pub", PUB},
-    {"register", REGISTER},
-    {"return", RET},
-    {"static", STATIC},
-    {"struct", STRUCT},
-    {"switch", SWITCH},
-    {"true", TRUE},
-    {"type", TYPE},
-    {"u128", U128},
-    {"u16", U16},
-    {"u32", U32},
-    {"u64", U64},
-    {"u8", U8},
-    {"union", UNION},
-    {"usize", USIZE},
-    {"var", VAR},
-    {"void", VOID},
-    {"volatile", VOLATILE},
-    {"while", WHILE}};
-
 typedef struct {
   TokenKind kind;
   char *value;
@@ -200,7 +150,7 @@ typedef struct {
 } Token;
 
 char *token_kind_to_str(TokenKind kind);
-TokenKind get_keyword_kind(const char *word);
+TokenKind get_keyword_kind(const char *str, size_t len);
 TokenKind get_directive_kind(const char *word);
 bool is_token_kind_error(TokenKind kind);
 void print_tokens(SHI_OPA *token_pool);

@@ -1,11 +1,11 @@
 #ifndef TRIDENT_LEXER_H
 #define TRIDENT_LEXER_H
 
-#include <stdbool.h>
-#include <stddef.h>
-
 #include "../../SHI/shi_opa.h"
 #include "../lexer/lexer.h"
+
+#include <stdbool.h>
+#include <stddef.h>
 
 typedef struct AstNode AstNode;
 
