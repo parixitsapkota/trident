@@ -2,6 +2,9 @@
 
 An experimental compiler for the Trident language.
 
+## Language Specs
+Trident language [Scpec](https://github.com/parixitsapkota/trident/blob/main/docs/spec.md)
+
 ## Build & Run
 
 - Build Requirements : `clang-format clang make`
@@ -13,7 +16,7 @@ make MODE=release
 - Run
 
 ```bash
-.trident <filename>
+./trident <filename>
 ```
 
 # License
