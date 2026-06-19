@@ -5,6 +5,8 @@
 #include "../SHI/shi_opa.h"
 #define SHI_FILE_IMPLEMENTATION
 #include "../SHI/shi_file.h"
+#define SHI_HS_IMPLEMENTATION
+#include "../SHI/shi_hs.h"
 
 #include <stddef.h>
 #include <stdio.h>
@@ -19,20 +21,24 @@ int main(int argc, char *argv[]) {
 
   char *buffer = read_file(argv[1], NULL);
 
-  SHI_OPA *token_pool = lexer(buffer);
+  LexReturn lexret = lexer(buffer);
   free(buffer);
 
-  print_tokens(token_pool);
-  size_t errors = print_error_token_kind(argv[1], token_pool);
+  print_tokens(lexret.token_pool);
+  size_t errors = print_error_token_kind(argv[1], lexret.token_pool);
 
   if (errors) {
-    free_token_pool(token_pool);
+    free_token_pool(lexret.token_pool);
+    free_interned_symbols(lexret.set);
+    shi_hs_free(lexret.set);
     return errors;
   }
 
-  parser(token_pool);
+  parser(&lexret);
 
-  free_token_pool(token_pool);
+  free_token_pool(lexret.token_pool);
+  free_interned_symbols(lexret.set);
+  shi_hs_free(lexret.set);
 
   return 0;
 }

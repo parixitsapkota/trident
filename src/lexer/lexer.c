@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "../../SHI/shi_hs.h"
 #include "../../SHI/shi_opa.h"
 
 #include <ctype.h>
@@ -24,25 +25,7 @@ char *get_word(Lexer *l) {
   return substr(l->buffer, start, l->index);
 }
 
-char *get_digit(Lexer *l, bool *is_float) {
-  const size_t start = l->index;
-  *is_float = false;
-  if (peak(l, 0) == '.') {
-    *is_float = true;
-    consume(l);
-  }
-  while (isdigit(peak(l, 0)) || peak(l, 0) == '.') {
-    if (peak(l, 0) == '.') {
-      if (*is_float) {
-        break;
-      }
-      *is_float = 1;
-    }
-    consume(l);
-  }
-  return substr(l->buffer, start, l->index);
-}
-
+// TODO : add support for escape characters.
 char *get_string(Lexer *l, TokenKind *error, char c) {
   consume(l); // Skip first char.
   const size_t start = l->index;
@@ -75,17 +58,29 @@ char *get_string_ident(Lexer *l, TokenKind *error) {
   return substr(l->buffer, start, l->index - 1);
 }
 
+char *intern_symbol(Lexer *l, char *word) {
+  if (shi_hs_has(l->set, word)) {
+    char *existing = (char *)shi_hs_get(l->set, word);
+    free(word);
+    return existing;
+  }
+  shi_hs_put(l->set, word, word);
+  return word;
+}
+
+#define TOKEN_CAP 1024
 Lexer init_lexer(const char *buffer) {
   Lexer l = {0};
   l.buffer = buffer;
   l.line = 1;
   l.col = 1;
-  l.token_pool_head = shi_opa_init(Token, 1024);
+  l.token_pool_head = shi_opa_init(Token, TOKEN_CAP);
   l.token_pool = l.token_pool_head;
+  l.set = shi_hs_init(TOKEN_CAP);
   return l;
 }
 
-SHI_OPA *lexer(const char *buffer) {
+LexReturn lexer(const char *buffer) {
 
   Lexer l = init_lexer(buffer);
   Token c_token = {0};
@@ -126,6 +121,7 @@ SHI_OPA *lexer(const char *buffer) {
         free(word);
         c_token = (Token){kind, NULL, l.line, tcol};
       } else {
+        word = intern_symbol(&l, word);
         c_token = (Token){kind, word, l.line, tcol};
       }
       shi_opa_push(l.token_pool, c_token);
@@ -134,10 +130,10 @@ SHI_OPA *lexer(const char *buffer) {
 
     // Handle digits.
     if (isdigit(peak(&l, 0)) || (peak(&l, 0) == '.' && isdigit(peak(&l, 1)))) {
-      bool is_float = false;
-      const char *digit = get_digit(&l, &is_float);
-      const TokenKind kind = is_float ? FLOAT : INT;
-      c_token = (Token){kind, (char *)digit, l.line, tcol};
+      TokenKind kind = UNKNOWN;
+      char *digit = get_digit(&l, &kind);
+      digit = intern_symbol(&l, digit);
+      c_token = (Token){kind, digit, l.line, tcol};
       shi_opa_push(l.token_pool, c_token);
       continue;
     }
@@ -145,8 +141,9 @@ SHI_OPA *lexer(const char *buffer) {
     // Handle strings & char.
     if (peak(&l, 0) == '"' || peak(&l, 0) == '\'') {
       TokenKind error = peak(&l, 0) == '"' ? STRING : CHARACTER;
-      const char *value = get_string(&l, &error, peak(&l, 0));
-      c_token = (Token){error, (char *)value, l.line, tcol};
+      char *value = get_string(&l, &error, peak(&l, 0));
+      value = intern_symbol(&l, value);
+      c_token = (Token){error, value, l.line, tcol};
       shi_opa_push(l.token_pool, c_token);
       continue;
     }
@@ -158,8 +155,9 @@ SHI_OPA *lexer(const char *buffer) {
       }
       if (peak(&l, 0) == '"') {
         TokenKind error = IDENTIFIER;
-        const char *ident = get_string_ident(&l, &error);
-        c_token = (Token){error, (char *)ident, l.line, tcol};
+        char *ident = get_string_ident(&l, &error);
+        ident = intern_symbol(&l, ident);
+        c_token = (Token){error, ident, l.line, tcol};
       } else if (isalpha(peak(&l, 0))) {
         char *directive = get_word(&l);
         TokenKind kind = get_directive_kind(directive);
@@ -260,7 +258,7 @@ SHI_OPA *lexer(const char *buffer) {
 
   c_token = (Token){END_OF_TOKEN, NULL, 0, 0};
   shi_opa_push(l.token_pool, c_token);
-  return l.token_pool_head;
+  return (LexReturn){l.token_pool_head, l.set};
 }
 
 char peak(Lexer *l, int offset) { return l->buffer[l->index + offset]; }

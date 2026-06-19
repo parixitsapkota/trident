@@ -111,7 +111,7 @@ typedef struct {
   size_t index;
 } Parser;
 
-SHI_OPA *parser(const SHI_OPA *token_pool);
+SHI_OPA *parser(const LexReturn *l);
 
 Token *parser_current(Parser *self);
 TokenKind parser_current_kind(Parser *self);

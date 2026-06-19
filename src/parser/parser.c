@@ -12,12 +12,12 @@ Parser init_parser(const SHI_OPA *token_pool, const SHI_OPA *ast_pool) {
   return p;
 }
 
-SHI_OPA *parser(const SHI_OPA *token_pool) {
-  Parser p = init_parser(token_pool, shi_opa_init(AstNode, 1024));
+SHI_OPA *parser(const LexReturn *l) {
+  Parser p = init_parser(l->token_pool, shi_opa_init(AstNode, 1024));
 
-  Token *token = shi_opa_index(token_pool, 0);
+  Token *token = shi_opa_index(l->token_pool, 0);
   for (size_t index = 0; token->kind != END_OF_TOKEN; ++index) {
-    token = shi_opa_index(token_pool, index);
+    token = shi_opa_index(l->token_pool, index);
     parse_expr(&p);
   }
 

@@ -4,11 +4,22 @@
 #include <stdlib.h>
 #include <string.h>
 
+void free_interned_symbols(SHI_HS *set) {
+  for (size_t i = 0; i < set->bucket_cap; ++i) {
+    __hs_entry__ *entry = set->buckets[i];
+    while (entry != NULL) {
+      free(entry->value);
+      entry = entry->next;
+    }
+  }
+}
+
 void free_token_pool(SHI_OPA *token_pool) {
-  Token *token = shi_opa_index(token_pool, 0);
-  for (size_t i = 0; token->kind == END_OF_TOKEN; ++i) {
-    token = shi_opa_index(token_pool, i);
-    if (!token->value) {
+  for (size_t i = 0;; ++i) {
+    Token *token = (Token *)shi_opa_index(token_pool, i);
+    if (!token || token->kind == END_OF_TOKEN)
+      break;
+    if (token->kind != IDENTIFIER && token->value != NULL) {
       free(token->value);
     }
   }

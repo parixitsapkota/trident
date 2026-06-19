@@ -1,6 +1,7 @@
 #ifndef TRIDENT_PARSER_H
 #define TRIDENT_PARSER_H
 
+#include "../../SHI/shi_hs.h"
 #include "../../SHI/shi_opa.h"
 
 #include <stdbool.h>
@@ -156,18 +157,22 @@ typedef struct {
   size_t index;
   size_t line;
   size_t col;
+
   SHI_OPA *token_pool_head;
   SHI_OPA *token_pool;
-
-  bool error;
-  bool faital_error;
-  SHI_OPA *error_pool;
+  SHI_HS *set;
 } Lexer;
 
-SHI_OPA *lexer(const char *buffer);
+typedef struct {
+  SHI_OPA *token_pool;
+  SHI_HS *set;
+} LexReturn;
+
+LexReturn lexer(const char *buffer);
 char peak(Lexer *l, int offset);
 void consume(Lexer *l);
 
+char *get_digit(Lexer *l, TokenKind *kind);
 TokenKind get_keyword_kind(const char *str, size_t len);
 TokenKind get_directive_kind(const char *word);
 
@@ -177,6 +182,7 @@ void print_tokens(SHI_OPA *token_pool);
 bool is_token_kind_error(TokenKind kind);
 size_t print_error_token_kind(const char *file_name, SHI_OPA *error_pool);
 
+void free_interned_symbols(SHI_HS *set);
 void free_token_pool(SHI_OPA *token_pool);
 
 #endif // TRIDENT_PARSER_H

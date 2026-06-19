@@ -2,7 +2,7 @@
 PROJECT := trident
 CC      := clang
 
-DEBUG   := -g -O0
+DEBUG   := -fsanitize=address -g -O0
 RELEASE := -O3
 CFLAGS  := -Wall -Wextra
 

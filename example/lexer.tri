@@ -33,7 +33,7 @@ bool false true type void f32 f64 f128 i8 i16 i32 i64 i128 isize u8 u16 u32 u64 
 // Decimal int
 99
 // Hex int
-0xff
+0xFF
 // Octal int
 0_77
 // Decimal float
