@@ -22,7 +22,8 @@ int main(int argc, char *argv[]) {
   }
 
   if (!*file) {
-    fprintf(stderr, BOLD FG_BLACK BG_WHITE "%s: " FG_WHITE BG_RED " ERROR " RESET " no input files.\n", shi_flag_program_name());
+    fprintf(stderr, BOLD FG_BLACK BG_WHITE "%s: " FG_WHITE BG_RED " ERROR " RESET " no input files.\n",
+            shi_flag_program_name());
     exit(1);
   }
 
