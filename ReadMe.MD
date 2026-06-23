@@ -16,7 +16,7 @@ make MODE=release
 - Run
 
 ```bash
-./trident <filename>
+./trident <FILE>
 ```
 
 # License

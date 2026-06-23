@@ -29,19 +29,27 @@ bool false true type void f32 f64 f128 i8 i16 i32 i64 i128 isize u8 u16 u32 u64 
 = += -= *= /= %= <<= >>= &= ^=
 ,
 
-//Number literals
 // Decimal int
 99
 // Hex int
 0xFF
+0xFFS
 // Octal int
 0_77
+0_77S
+// Binary int
+0b00110011
 // Decimal float
-12.984e-2
+1.5
+12.984p-2
 .984
+.984p3
+// Octal float
+0_75.3
+0_75.3p-2
 // Hex float
+0xF5.D3
 0xF5.2Ep-2
-0x0.FFp-2
 
 "中文"
 // String Literal

@@ -4,7 +4,7 @@ CC      := clang
 
 DEBUG   := -fsanitize=address -g -O0
 RELEASE := -O3
-CFLAGS  := -Wall -Wextra
+CFLAGS  := -ISHI -Isrc -Wall -Wextra
 
 MODE    ?= debug
 BUILD   := build

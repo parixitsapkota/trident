@@ -4,9 +4,10 @@
 
 ## Lexical Rules
 
-- DECIMAL_INTS : `[0-9][0-9]*U?`
-- OCTAL_INTS : `0_[0-7]+U?`
-- HEX_INTS : `0x[0-9A-F]+U?`
+- BINARY_INTS : `0b[01]*`
+- DECIMAL_INTS : `[0-9][0-9]*S?`
+- OCTAL_INTS : `0_[0-7]+S?`
+- HEX_INTS : `0x[0-9A-F]+S?`
 - DECIMAL_FLOATS : `[0-9]*(.[0-9]*(e[-+]?[0-9]+)?)`
 - OCTAL_FLOATS : `0_[0-7]+(.[0-7]*)?p[-+]?[0-7]+`
 - HEX_FLOATS : `0x[0-9A-F]+(.[0-9A-F]*)?p[-+]?[0-9A-F]+`
@@ -22,7 +23,7 @@
 // hello, world
 
 fn main() {
-  // I'm feeling lucky today
+  // I'm feeling lucky
   lucky_number := 7;
 }
 ```
