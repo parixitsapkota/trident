@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
+#include "lexer/token.h"
 #include "shi_opa.h"
 
 typedef enum {
@@ -10,12 +11,19 @@ typedef enum {
   UNKNOWN_TOKEN,
   UNKNOWN_DIRECTIVE,
   UNTERMINATED_STRING,
+  // Parser Error
+  UNEXPECTED_TOKEN,
   // Misc
   END_OF_ERROR,
 } ErrorKind;
 
 typedef struct {
   ErrorKind kind;
+
+  TokenKind expected;
+  TokenKind got;
+  const char *got_val;
+
   size_t line;
   size_t col;
 } ErrorT;

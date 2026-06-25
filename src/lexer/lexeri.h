@@ -1,6 +1,7 @@
 #ifndef TRIDENT_LEXER_I_H
 #define TRIDENT_LEXER_I_H
 
+#include "error/error.h"
 #include "lexer.h"
 #include "token.h"
 

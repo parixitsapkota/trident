@@ -31,7 +31,7 @@ char *get_string_ident(Lexer *l, Error *e) {
 
   while (peak(l, 0) != '"') {
     if (peak(l, 0) == '\0' || peak(l, 0) == '\n') {
-      add_error(e, (ErrorT){UNTERMINATED_STRING, l->line, l->col});
+      add_error(e, (ErrorT){.kind = UNTERMINATED_STRING, .line = l->line, .col = l->col});
       break;
     }
     consume(l);
@@ -52,7 +52,7 @@ char *get_string(Lexer *l, Error *e, char c) {
 
   while (peak(l, 0) != c) {
     if (peak(l, 0) == '\0' || peak(l, 0) == '\n') {
-      add_error(e, (ErrorT){UNTERMINATED_STRING, l->line, l->col});
+      add_error(e, (ErrorT){.kind = UNTERMINATED_STRING, .line = l->line, .col = l->col});
       break;
     }
     consume(l);
