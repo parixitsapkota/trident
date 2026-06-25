@@ -15,12 +15,12 @@ typedef struct {
 } AstCompound;
 
 typedef struct {
-  char *value;
+  const char *value;
   TokenKind kind;
 } AstAtom;
 
 typedef struct {
-  char *name;
+  const char *name;
   AstCompound *args;
 } AstFuncCall;
 
@@ -37,14 +37,14 @@ typedef struct {
 
 typedef struct {
   bool constant;
-  char *name;
+  const char *name;
   AstNode *expr;
 } AstVarDecl;
 
 typedef struct {
   bool constant;
   bool define;
-  char *name;
+  const char *name;
   AstCompound *body;
 } AstStion;
 
@@ -61,9 +61,9 @@ typedef struct AstIfStmt {
 
 typedef struct {
   bool pointer;
-  char *name;
+  const char *name;
   AstCompound *args;
-  char *return_type;
+  const char *return_type;
   AstCompound *body;
 } AstFuncDecl;
 
@@ -102,6 +102,8 @@ struct AstNode {
     AstIfStmt if_stmt;
     AstFuncDecl func_decl;
   };
+  size_t line;
+  size_t col;
 };
 
 #endif // TRIDENT_AST_H

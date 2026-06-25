@@ -5,6 +5,7 @@
 
 #include "error/error.h"
 #include "lexer/lexer.h"
+#include "parser/parser.h"
 #include "shi_file.h"
 #include "shi_flags.h"
 #include "util/util.h"
@@ -35,18 +36,23 @@ int main(int argc, char *argv[]) {
 
   size_t len;
   char *buffer = shi_file_read(*file, &len);
+
   Error *e = init_error();
+
   Lexer *l = init_lexer(buffer);
   lexer(l, len, e);
+
+  Parser *p = init_parser(l);
+  parse(p);
+  free_tokens(l);
+  free_parser(p);
 
   if (*tok) {
     print_tokens(l);
   }
   print_errors(e, *file, buffer, len);
-
+  free(buffer);
   free_errors(e);
-  free(buffer), (void)len;
-  free_tokens(l);
 
   return 0;
 }
@@ -54,6 +60,8 @@ int main(int argc, char *argv[]) {
 // SHI IMPLEMENTATIONS
 #define SHI_HS_IMPLEMENTATION
 #include "shi_hs.h"
+#define SHI_ARENA_IMPLEMENTATION
+#include "shi_arena.h"
 #define SHI_OPA_IMPLEMENTATION
 #include "shi_opa.h"
 #define SHI_FILE_IMPLEMENTATION

@@ -4,14 +4,14 @@
 #include <stddef.h>
 
 #include "lexer/lexer.h"
+#include "shi_arena.h"
 #include "shi_hs.h"
 #include "shi_opa.h"
 
 typedef struct {
   SHI_OPA *tokens_pool;
   size_t index;
-  SHI_OPA *ast_pool_head;
-  SHI_OPA *ast_pool;
+  SHI_ARENA *ast;
 } Parser;
 
 Parser *init_parser(Lexer *l);
