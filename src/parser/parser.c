@@ -44,17 +44,31 @@ AstNode *parse_unary_f(Parser *p) {
   return NULL;
 }
 
+AstNode *parse_func_call_f(Parser *p) {
+  Token *tok = consume_p(p);
+  expect_kind(p, O_PREN);
+  // TODO: parse arguments.
+  expect_kind(p, C_PREN);
+
+  AstNode *call = shi_arena_alloc(p->ast, sizeof(AstNode));
+  *call = (AstNode){AST_FUNCTION_CALL, .func_call = (AstFuncCall){tok->value, NULL}};
+  return NULL;
+}
+
 AstNode *parse_left_f(Parser *p) {
   if (peak_kind(p, 0) == O_PREN) {
-    consume_p(p);
+    expect_kind(p, O_PREN);
     AstNode *node = parse_expr(p, PREC_NONE);
-    // expect a `)`
-    consume_p(p);
+    expect_kind(p, C_PREN);
     return node;
   }
 
   if (is_kind_prefix(peak_kind(p, 0))) {
     return parse_unary_f(p);
+  }
+
+  if (peak_kind(p, 0) == IDENTIFIER && peak_kind(p, 1) == O_PREN) {
+    return parse_func_call_f(p);
   }
 
   return parse_atom_f(p);
