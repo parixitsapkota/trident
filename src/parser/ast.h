@@ -9,9 +9,9 @@
 
 typedef struct AstNode AstNode;
 
-typedef struct {
-  AstNode **nodes;
-  size_t count;
+typedef struct AstCompound {
+  AstNode *node;
+  struct AstCompound *next;
 } AstCompound;
 
 typedef struct {

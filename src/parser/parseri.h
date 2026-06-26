@@ -27,6 +27,9 @@ typedef enum {
 Precedence get_op_prec(TokenKind kind);
 bool is_proc_left_Associative(Precedence prec);
 
+bool is_kind_prefix(TokenKind kind);
+bool is_kind_literal(TokenKind kind);
+
 Token *peak_p(Parser *p, int offset);
 TokenKind peak_kind(Parser *p, int offset);
 Token *consume_p(Parser *p);

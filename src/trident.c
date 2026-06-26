@@ -44,12 +44,15 @@ int main(int argc, char *argv[]) {
 
   Parser *p = init_parser(l);
   parse(p);
-  free_tokens(l);
+
   free_parser(p);
 
   if (*tok) {
     print_tokens(l);
   }
+  free_tokens(l);
+
+  add_error(e, (ErrorT){.kind = END_OF_ERROR});
   print_errors(e, *file, buffer, len);
   free(buffer);
   free_errors(e);

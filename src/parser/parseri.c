@@ -60,6 +60,33 @@ bool is_proc_left_Associative(Precedence prec) {
   }
 }
 
+bool is_kind_prefix(TokenKind kind) {
+  switch (kind) {
+  case INCREMENT:
+  case DECREMENT:
+  case ADD:
+  case SUB:
+  case NEGATE:
+  case BIT_NOT:
+  case STAR:
+  case ANDPERCENT: return true;
+
+  default: return false;
+  }
+}
+
+bool is_kind_literal(TokenKind kind) {
+  switch (kind) {
+  case INT:
+  case FLOAT:
+  case STRING:
+  case CHARACTER:
+  case IDENTIFIER: return true;
+
+  default: return false;
+  }
+}
+
 Token *peak_p(Parser *p, int offset) { return (Token *)shi_opa_index(p->tokens_pool, p->index + offset); }
 
 TokenKind peak_kind(Parser *p, int offset) { return peak_p(p, offset)->kind; }
