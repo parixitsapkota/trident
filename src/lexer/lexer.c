@@ -107,7 +107,7 @@ void lexer(Lexer *l, size_t len, Error *e) {
         TokenKind kind = get_directive_kind(directive);
         free(directive);
         if (kind == UNKNOWN) {
-          add_error(e, (ErrorT){UNKNOWN_DIRECTIVE, l->line, l->col});
+          add_error(e, (ErrorT){.kind = UNKNOWN_DIRECTIVE, .line = l->line, .col = l->col});
           continue;
         }
         add_token(l, (Token){kind, NULL, l->line, t_col});
@@ -130,12 +130,12 @@ void lexer(Lexer *l, size_t len, Error *e) {
         add_token(l, (Token){kind, NULL, l->line, t_col});
         continue;
       }
-      add_error(e, (ErrorT){UNKNOWN_TOKEN, l->line, t_col});
+      add_error(e, (ErrorT){.kind = UNKNOWN_TOKEN, .line = l->line, .col = t_col});
       continue;
     }
   }
-  add_token(l, (Token){END_OF_TOKEN, NULL, 0, 0});
-  add_error(e, (ErrorT){END_OF_ERROR, 0, 0});
+  add_token(l, (Token){.kind = END_OF_TOKEN});
+  add_error(e, (ErrorT){.kind = END_OF_ERROR});
 }
 
 void print_tokens(Lexer *l) {

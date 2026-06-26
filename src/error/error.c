@@ -59,25 +59,29 @@ static const char *error_kind_to_str(const ErrorKind kind) {
 void print_errors(Error *e, const char *file, const char *buffer, const size_t buffer_len) {
   init_line_stream(e, buffer, buffer_len);
 
+  size_t errors = 0;
   for (size_t i = 0;; ++i) {
     ErrorT *err = shi_opa_index(e->error_pool_head, i);
     if (!err || err->kind == END_OF_ERROR) {
       break;
     }
 
-    const char *kind = error_kind_to_str(err->kind);
-    fprintf(stderr, BOLD FG_BLACK BG_WHITE " %s:%lu:%lu: " RESET BOLD FGB_WHITE BG_RED " ERROR " RESET " %s\n", file, err->line,
-            err->col, kind);
+    ++errors;
+    const char *msg = error_kind_to_str(err->kind);
+    error(format("%s:%lu:%lu:", file, err->line, err->col), msg);
 
     if (e->line_stream && err->line > 0 && err->line <= e->line_stream_len) {
-      const char *format = FG_WHITE BOLD "%4lu|" RESET " %s\n";
-      fprintf(stdout, format, err->line, e->line_stream[err->line - 1]);
+      const char *format = BOLD FG_WHITE "%4lu|" RESET " %s\n";
+      printf(format, err->line, e->line_stream[err->line - 1]);
     }
-    printf(FG_WHITE BOLD "    |" RESET);
+    printf(BOLD FG_WHITE "    |" RESET);
     for (size_t i = 0; i < err->col; ++i) {
       putchar(' ');
     }
     printf(BOLD FG_GREEN "^~" RESET "\n");
+  }
+  if (errors != 0) {
+    info(file, format("reported %lu error(s).", errors));
   }
 }
 

@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 
 /* Reset */
 #define RESET "\033[0m"
@@ -52,5 +53,12 @@
 
 char *substr(const char *str, const size_t start, const size_t end);
 bool issymbol(const char c);
+
+char *format(const char *format, ...);
+
+void error(const char *about, const char *discription);
+void info(const char *about, const char *discription);
+void warn(const char *about, const char *discription);
+void tri_log(FILE *fd, const char *stamp, const char *discription);
 
 #endif // TRIDENT_UTILS_H

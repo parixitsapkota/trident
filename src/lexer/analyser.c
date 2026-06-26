@@ -31,7 +31,7 @@ char *get_string_ident(Lexer *l, Error *e) {
 
   while (peak(l, 0) != '"') {
     if (peak(l, 0) == '\0' || peak(l, 0) == '\n') {
-      add_error(e, (ErrorT){UNTERMINATED_STRING, l->line, l->col});
+      add_error(e, (ErrorT){.kind = UNTERMINATED_STRING, .line = l->line, .col = l->col});
       break;
     }
     consume(l);
@@ -52,7 +52,7 @@ char *get_string(Lexer *l, Error *e, char c) {
 
   while (peak(l, 0) != c) {
     if (peak(l, 0) == '\0' || peak(l, 0) == '\n') {
-      add_error(e, (ErrorT){UNTERMINATED_STRING, l->line, l->col});
+      add_error(e, (ErrorT){.kind = UNTERMINATED_STRING, .line = l->line, .col = l->col});
       break;
     }
     consume(l);
@@ -63,6 +63,9 @@ char *get_string(Lexer *l, Error *e, char c) {
   return substr(l->buffer, start, l->index - 1);
 }
 
+// TODO: add errors for incorrect formating
+// (eg. 0_1784) : incorrect.
+//          ^~
 // ==================
 // Get Digit
 // ==================
@@ -262,140 +265,140 @@ TokenKind get_symbol(Lexer *l, size_t len) {
 // ==================
 // Get Kind String
 // ==================
-#define TOK_STR(x)                                                                                                             \
-  case x: return #x
+#define TOK_STR(x, y)                                                                                                          \
+  case x: return y
 char *token_kind_to_str(TokenKind kind) {
   switch (kind) {
     // Misc Tokens
-    TOK_STR(UNKNOWN);
-    TOK_STR(END_OF_TOKEN);
+    TOK_STR(UNKNOWN, "unknown");
+    TOK_STR(END_OF_TOKEN, "");
 
     // Keywords
     // Qualifier
-    TOK_STR(PUB);
-    TOK_STR(EXTERN);
-    TOK_STR(INLINE);
-    TOK_STR(STATIC);
-    TOK_STR(REGISTER);
-    TOK_STR(CONST);
-    TOK_STR(VAR);
-    TOK_STR(VOLATILE);
+    TOK_STR(PUB, "pub");
+    TOK_STR(EXTERN, "extern");
+    TOK_STR(INLINE, "inline");
+    TOK_STR(STATIC, "static");
+    TOK_STR(REGISTER, "reister");
+    TOK_STR(CONST, "const");
+    TOK_STR(VAR, "var");
+    TOK_STR(VOLATILE, "volatile");
     // Function
-    TOK_STR(FUNC);
-    TOK_STR(RET);
+    TOK_STR(FUNC, "fn");
+    TOK_STR(RET, "return");
     // Control flow
-    TOK_STR(IF);
-    TOK_STR(ELSE);
-    TOK_STR(LOOP);
-    TOK_STR(DO);
-    TOK_STR(WHILE);
-    TOK_STR(FOR);
-    TOK_STR(BREAK);
-    TOK_STR(CONTINUE);
-    TOK_STR(SWITCH);
-    TOK_STR(CASE);
-    TOK_STR(DEFAULT);
+    TOK_STR(IF, "if");
+    TOK_STR(ELSE, "else");
+    TOK_STR(LOOP, "loop");
+    TOK_STR(DO, "do");
+    TOK_STR(WHILE, "while");
+    TOK_STR(FOR, "for");
+    TOK_STR(BREAK, "break");
+    TOK_STR(CONTINUE, "continue");
+    TOK_STR(SWITCH, "switch");
+    TOK_STR(CASE, "case");
+    TOK_STR(DEFAULT, "default");
 
     // Types
-    TOK_STR(TYPE);
-    TOK_STR(VOID);
+    TOK_STR(TYPE, "type");
+    TOK_STR(VOID, "void");
     // Boolean
-    TOK_STR(BOOL);
-    TOK_STR(TRUE);
-    TOK_STR(FALSE);
+    TOK_STR(BOOL, "bool");
+    TOK_STR(TRUE, "true");
+    TOK_STR(FALSE, "flase");
     // Signed_Int
-    TOK_STR(I8);
-    TOK_STR(I16);
-    TOK_STR(I32);
-    TOK_STR(I64);
-    TOK_STR(I128);
-    TOK_STR(ISIZE);
+    TOK_STR(I8, "i8");
+    TOK_STR(I16, "i16");
+    TOK_STR(I32, "i32");
+    TOK_STR(I64, "i64");
+    TOK_STR(I128, "i128");
+    TOK_STR(ISIZE, "isize");
     // Unsigned_Int
-    TOK_STR(U8);
-    TOK_STR(U16);
-    TOK_STR(U32);
-    TOK_STR(U64);
-    TOK_STR(U128);
-    TOK_STR(USIZE);
+    TOK_STR(U8, "u8");
+    TOK_STR(U16, "u16");
+    TOK_STR(U32, "u32");
+    TOK_STR(U64, "u64");
+    TOK_STR(U128, "u128");
+    TOK_STR(USIZE, "usize");
     // Float
-    TOK_STR(F32);
-    TOK_STR(F64);
-    TOK_STR(F128);
+    TOK_STR(F32, "f32");
+    TOK_STR(F64, "f64");
+    TOK_STR(F128, "f128");
     // Struct And Union
-    TOK_STR(STRUCT);
-    TOK_STR(UNION);
+    TOK_STR(STRUCT, "struct");
+    TOK_STR(UNION, "union");
     // Enumerator
-    TOK_STR(ENUM);
-    TOK_STR(ERROR);
+    TOK_STR(ENUM, "enum");
+    TOK_STR(ERROR, "err");
     // Identifier & Literals
-    TOK_STR(IDENTIFIER);
-    TOK_STR(INT);
-    TOK_STR(FLOAT);
-    TOK_STR(STRING);
-    TOK_STR(CHARACTER);
+    TOK_STR(IDENTIFIER, "identfier::");
+    TOK_STR(INT, "int::");
+    TOK_STR(FLOAT, "float::");
+    TOK_STR(STRING, "string::");
+    TOK_STR(CHARACTER, "char");
 
     // Directive
-    TOK_STR(TYPEOF);
-    TOK_STR(DEFINE);
-    TOK_STR(IMPORT);
+    TOK_STR(TYPEOF, "@typedef");
+    TOK_STR(DEFINE, "@define");
+    TOK_STR(IMPORT, "@import");
 
     // Seperator
-    TOK_STR(O_BRACE);
-    TOK_STR(C_BRACE);
-    TOK_STR(O_PREN);
-    TOK_STR(C_PREN);
-    TOK_STR(O_BRACKET);
-    TOK_STR(C_BRACKET);
-    TOK_STR(SEMICOLON);
+    TOK_STR(O_BRACE, "{");
+    TOK_STR(C_BRACE, "}");
+    TOK_STR(O_PREN, "(");
+    TOK_STR(C_PREN, ")");
+    TOK_STR(O_BRACKET, "[");
+    TOK_STR(C_BRACKET, "]");
+    TOK_STR(SEMICOLON, ";");
     // Operator
-    TOK_STR(COMMA);
-    TOK_STR(ACESS);
-    TOK_STR(ADD);
-    TOK_STR(SUB);
-    TOK_STR(DEV);
-    TOK_STR(MOD);
+    TOK_STR(COMMA, ",");
+    TOK_STR(ACESS, ".");
+    TOK_STR(ADD, "+");
+    TOK_STR(SUB, "-");
+    TOK_STR(DEV, "/");
+    TOK_STR(MOD, "%");
     // Range
-    TOK_STR(INCLUSIVE_RANGE);
+    TOK_STR(INCLUSIVE_RANGE, "..");
 
     // Unary
-    TOK_STR(INCREMENT);
-    TOK_STR(DECREMENT);
-    TOK_STR(NEGATE);
+    TOK_STR(INCREMENT, "++");
+    TOK_STR(DECREMENT, "--");
+    TOK_STR(NEGATE, "!");
     // Logical
-    TOK_STR(LOGICAL_AND);
-    TOK_STR(LOGICAL_OR);
-    TOK_STR(LOGICAL_XOR);
+    TOK_STR(LOGICAL_AND, "&&");
+    TOK_STR(LOGICAL_OR, "||");
+    TOK_STR(LOGICAL_XOR, "^^");
     // Bitwise Logic
-    TOK_STR(BIT_NOT);
-    TOK_STR(BIT_OR);
-    TOK_STR(BIT_XOR);
+    TOK_STR(BIT_NOT, "~");
+    TOK_STR(BIT_OR, "|");
+    TOK_STR(BIT_XOR, "^");
     // Shift
-    TOK_STR(SHIFT_LEFT);
-    TOK_STR(SHIFT_RIGHT);
+    TOK_STR(SHIFT_LEFT, "<<");
+    TOK_STR(SHIFT_RIGHT, ">>");
     // Compare
-    TOK_STR(EQUAL);
-    TOK_STR(NOT_EQUAL);
-    TOK_STR(LESSER);
-    TOK_STR(GREATER);
-    TOK_STR(LESSER_EQUAL);
-    TOK_STR(GREATER_EQUAL);
+    TOK_STR(EQUAL, "==");
+    TOK_STR(NOT_EQUAL, "!=");
+    TOK_STR(LESSER, "<");
+    TOK_STR(GREATER, ">");
+    TOK_STR(LESSER_EQUAL, "<=");
+    TOK_STR(GREATER_EQUAL, ">=");
     // Assignment
-    TOK_STR(ASSIGN);
-    TOK_STR(ADD_ASSIGN);
-    TOK_STR(SUB_ASSIGN);
-    TOK_STR(MUL_ASSIGN);
-    TOK_STR(DEV_ASSIGN);
-    TOK_STR(MOD_ASSIGN);
-    TOK_STR(SHIFT_LEFT_ASSIGN);
-    TOK_STR(SHIFT_RIGHT_ASSIGN);
-    TOK_STR(BIT_AND_ASSIGN);
-    TOK_STR(BIT_OR_ASSIGN);
-    TOK_STR(BIT_XOR_ASSIGN);
+    TOK_STR(ASSIGN, "=");
+    TOK_STR(ADD_ASSIGN, "+=");
+    TOK_STR(SUB_ASSIGN, "-=");
+    TOK_STR(MUL_ASSIGN, "*=");
+    TOK_STR(DEV_ASSIGN, "/=");
+    TOK_STR(MOD_ASSIGN, "%=");
+    TOK_STR(SHIFT_LEFT_ASSIGN, "<<=");
+    TOK_STR(SHIFT_RIGHT_ASSIGN, ">>=");
+    TOK_STR(BIT_AND_ASSIGN, "&=");
+    TOK_STR(BIT_OR_ASSIGN, "|=");
+    TOK_STR(BIT_XOR_ASSIGN, "^=");
     // Misc operator
-    TOK_STR(ANDPERCENT);
-    TOK_STR(STAR);
-    TOK_STR(COLN);
-    TOK_STR(WHAT);
+    TOK_STR(ANDPERCENT, "&");
+    TOK_STR(STAR, "*");
+    TOK_STR(COLN, ":");
+    TOK_STR(WHAT, "?");
 
   default: return "";
   }
