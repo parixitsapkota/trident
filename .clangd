@@ -1,0 +1,21 @@
+CompileFlags:
+  Add: [-xc, -Wall, -Wextra, -Werror]
+
+Diagnostics:
+  ClangTidy:
+    Add:
+      - performance-*
+      - bugprone-*
+    Remove:
+      - "readability-identifier-length"
+      - "readability-implicit-bool-conversion"
+      - "readability-isolate-declaration"
+      - "readability-magic-numbers"
+      - "bugprone-easily-swappable-parameters"
+
+InlayHints:
+  Enabled: true
+  ParameterNames: true
+  DeducedTypes: true
+Index:
+  Background: Build

@@ -1,0 +1,18 @@
+%{
+#include <string.h>
+#include "syntax/token/token.h"
+%}
+
+%struct-type
+struct Intrinsic {
+  const char *name;
+  TokenKind kind;
+};
+
+%%
+here,   IC_HERE
+module, IC_MODULE
+extern, IC_EXTERN
+sizeof, IC_SIZEOF
+typeof, IC_TYPEOF
+%%
