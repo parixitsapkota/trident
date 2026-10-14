@@ -1,0 +1,51 @@
+%{
+#include <string.h>
+#include "syntax/token/token.h"
+%}
+
+%struct-type
+struct Keyword {
+  const char *name;
+  TokenKind kind;
+};
+
+%%
+i8,       KW_I8
+i16,      KW_I16
+i32,      KW_I32
+i64,      KW_I64
+i128,     KW_I128
+isize,    KW_ISIZE
+u8,       KW_U8
+u16,      KW_U16
+u32,      KW_U32
+u64,      KW_U64
+u128,     KW_U128
+usize,    KW_USIZE
+bool,     KW_BOOL
+f16,      KW_F16
+f32,      KW_F32
+f64,      KW_F64
+f128,     KW_F128
+str,      KW_STR
+true,     KW_TRUE
+false,    KW_FALSE
+enum,     KW_ENUM
+union,    KW_UNION
+struct,   KW_STRUCT
+alias,    KW_ALIAS
+extern,   KW_EXTERN
+pub,      KW_PUB
+volatile, KW_VOLATILE
+const,    KW_CONST
+mut,      KW_MUT
+func,     KW_FUNC
+return,   KW_RETURN
+if,       KW_IF
+else,     KW_ELSE
+loop,     KW_LOOP
+while,    KW_WHILE
+break,    KW_BREAK
+continue, KW_CONTINUE
+match,    KW_MATCH
+%%

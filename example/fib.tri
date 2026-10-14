@@ -1,0 +1,22 @@
+extern "c" printf;
+
+func main() :int {
+    n : u8 = 10;
+    t1 : u64 = 0;
+    t2 : u64 = 1;
+     nextTerm : u64;
+
+    printf("Fibonacci Series up to %d terms:\n", n);
+
+    @"<>" : u8 = 1;
+    while ( @"<>" <= n) {
+        printf("%llu ", t1);
+        nextTerm = t1 + t2;
+        t1 = t2;
+        t2 = nextTerm;
+        ++@"<>";
+    }
+    printf("\n");
+    // comment
+    return 0;
+}

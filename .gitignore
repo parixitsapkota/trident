@@ -1,0 +1,19 @@
+# BuilEditor && Build generated.
+.cache/
+.vscode/
+.zed/
+build/
+temp/
+trident
+compile_commands.json
+
+# Project generated.
+# Bins
+*.o
+*.out
+*.exe
+*.bin
+# outputs
+./*.b
+./*.s
+./*.asm
