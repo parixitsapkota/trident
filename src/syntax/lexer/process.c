@@ -47,7 +47,9 @@ void lexer_error(Lexer *l, Location start, const char *fmt, ...) {
 void lexer_emit(Lexer *l, Location start, Location end, TokenKind kind,
                 const char *lexeme, NumValue val) {
     Span *s = span(l->spans, start, end);
-    Token *t = token(l->token, kind, lexeme, s, val);
-    l->token_tail->next = t;
-    l->token_tail = t;
+    Token *new_token = token(l->token, kind, lexeme, s, val);
+    Token *last_token = l->token_tail;
+    new_token->last = last_token;
+    l->token_tail->next = new_token;
+    l->token_tail = new_token;
 }

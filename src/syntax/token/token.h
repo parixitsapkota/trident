@@ -25,9 +25,11 @@ typedef struct Token {
     const char *lexeme;
     Span *span;
     NumValue val;
+    struct Token *last;
     struct Token *next;
 } Token;
 
 const char *token_kind_to_str(TokenKind kind);
 Token *token(Arena *arena, TokenKind kind, const char *lexeme, Span *span, NumValue val);
 void print_tokens(const char *file_name, const Token *tokens);
+void print_tokens_reversed(const char *file_name, const Token *tokens);

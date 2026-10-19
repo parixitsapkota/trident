@@ -238,6 +238,11 @@ Token *lex(Lexer *l, bool lex_all) {
         lexer_error(l, start, "Unexpected character '%c'.", c);
         consume(l, 1);
     }
+    // add the last token.
+    Location loc_end = location(l->ln, l->cn, l->i);
+    lexer_emit(l, loc_end, loc_end, END_OF_TOKEN, "EOT", (NumValue){0});
+    // nulling the first token's last token ptr.
+    l->token_head->next->last = NULL;
 
     if (l->errorc > 0) fatal("Lexer had %zu error(s).", l->errorc);
 
