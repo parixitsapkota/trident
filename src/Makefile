@@ -1,5 +1,5 @@
 SRC_DIR := $(ROOT_DIR)/src
-TARGET  := $(ROOT_DIR)/$(OUTPUT)
+TARGET  := $(ROOT_DIR)/$(PROJECT)
 
 SRCS := $(sort $(shell find $(SRC_DIR) -name '*.c'))
 OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD)/%.o,$(SRCS))

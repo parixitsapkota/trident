@@ -50,23 +50,6 @@ CFLAGS += -DVERSION_INFO="\"$(VERSION)\"" \
           -DTIME_INFO="\"$(TIME_INFO)\"" \
           -DCC_INFO="\"$(COMPILER_INFO)\""
 
-# --- Platform ---
-PLATFORM ?= linux
-OUTPUT ?= $(PROJECT)
-
-ifeq ($(PLATFORM),linux)
-CFLAGS += -D_TUX
-else ifeq ($(PLATFORM),windows)
-CFLAGS += -D_WIN32
-OUTPUT := $(PROJECT).exe
-else ifeq ($(PLATFORM),macos)
-CFLAGS += -D_XOS
-else ifeq ($(PLATFORM),freebsd)
-CFLAGS += -D_BSD
-endif
-
-export OUTPUT
-
 all: compdb
 	@$(MAKE) -C src
 
@@ -77,16 +60,4 @@ clean:
 	@printf '$(COLOR_BLUE)[-] Cleaning build artifacts...$(COLOR_RESET)\n'
 	@rm -rf build/ $(PROJECT)
 
-install: MODE := release
-install: all
-	@echo "Installing $(OUTPUT)..."
-	@mkdir -p $(PREFIX)/bin
-	@cp -f $(OUTPUT) $(PREFIX)/bin
-	@chmod 755 $(PREFIX)/bin/$(OUTPUT)
-	@echo "Installed $(OUTPUT) to $(PREFIX)/.."
-
-uninstall:
-	@rm -f $(PREFIX)/bin/$(OUTPUT)
-	@echo "Uninstalled $(OUTPUT) from $(PREFIX)/.."
-
-.PHONY: all compdb test clean CLEAN install uninstall
+.PHONY: all compdb test clean
