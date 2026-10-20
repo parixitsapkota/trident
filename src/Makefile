@@ -2,7 +2,7 @@ SRC_DIR := $(ROOT_DIR)/src
 TARGET  := $(ROOT_DIR)/$(OUTPUT)
 
 SRCS := $(sort $(shell find $(SRC_DIR) -name '*.c'))
-OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD)/lib/%.o,$(SRCS))
+OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
 JSON := $(OBJS:.o=.json)
 
@@ -22,7 +22,7 @@ $(TARGET): $(OBJS)
 	@printf '$(COLOR_GREEN)[+] Linking %s ($(MODE))$(COLOR_RESET)\n' $(notdir $@)
 	@$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
-$(BUILD)/lib/%.o: $(SRC_DIR)/%.c
+$(BUILD)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	@printf '$(COLOR_YELLOW)[CC] %s$(COLOR_RESET)\n' $(patsubst $(SRC_DIR)/%,%,$<)
 	@$(CC) $(ALL_CFLAGS) -MJ $(@:.o=.json) -c $< -o $@

@@ -10,6 +10,7 @@ struct Keyword {
 };
 
 %%
+void,     KW_VOID
 i8,       KW_I8
 i16,      KW_I16
 i32,      KW_I32
@@ -45,7 +46,8 @@ if,       KW_IF
 else,     KW_ELSE
 loop,     KW_LOOP
 while,    KW_WHILE
+match,    KW_MATCH
+case,     KW_CASE
 break,    KW_BREAK
 continue, KW_CONTINUE
-match,    KW_MATCH
 %%
