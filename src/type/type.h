@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stddef.h>
 
 #include "core/arena.h"
@@ -38,6 +39,7 @@ typedef enum {
     PRIMITIVE_F64,
     PRIMITIVE_F128,
     PRIMITIVE_STR,
+    PRIMITIVE_NONE, // for type error
 } PrimitiveKind;
 
 typedef struct Type Type;
@@ -75,6 +77,7 @@ struct Type {
         struct {
             Member *members;      // members
             size_t members_count; // members count
+            bool anonymous;       // for anonymous struct
             const char *name;     // object name
         } object;
 

@@ -23,7 +23,7 @@ PrimitiveKind primitive_kind(const Token *kind) {
     case KW_F64: return PRIMITIVE_F64;
     case KW_F128: return PRIMITIVE_F128;
     case KW_STR: return PRIMITIVE_STR;
-    default: return PRIMITIVE_I32;
+    default: return PRIMITIVE_NONE;
     }
 }
 
