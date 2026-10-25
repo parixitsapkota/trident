@@ -1,9 +1,9 @@
 #include <stdbool.h>
 
 #include "core/diags.h"
-#include "core/mem.h"
 #include "core/source.h"
 #include "syntax/lexer/lexer.h"
+#include "syntax/parser/parser.h"
 #include "syntax/token/token.h"
 #include "syntax/tree/ast.h"
 
@@ -12,21 +12,15 @@ int main(int argc, const char *const *argv) {
         fatal("incorrect usage! \n");
         fatal("Correct usage : %s <file_pat>", argv[0]);
     }
+
     Source *src = init_source(argv[1]);
     Lexer *l = init_lexer(src);
     Token *tokens = lex(l, false);
-    (void)tokens;
-
-    Arena *a = init_arena(sizeof(AstNode) * 1024);
-    AstNode *one = ast_new(a, NULL, NULL);
-    ast_int_val(one, 1);
-
-    AstNode *root = ast_new(a, NULL, NULL);
-    ast_binary(root, PUNCT_ADD, one, one);
-
+    Parser *p = init_parser(src, tokens);
+    AstNode *root = parse(p);
     print_ast(root);
-    free_arena(a);
 
+    free_Parser(p);
     free_lexer(l);
     free_source(src);
 }
