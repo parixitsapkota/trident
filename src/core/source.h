@@ -35,4 +35,7 @@ static inline Location location(size_t ln, size_t cn, size_t i) {
 
 Span *span(Arena *arena, Location start, Location end);
 
-static inline Span span_merge(Span a, Span b) { return (Span){a.start, b.end}; }
+static inline Span *span_merge(Span *a, Span *b) {
+    *a = (Span){a->start, b->end};
+    return a;
+}

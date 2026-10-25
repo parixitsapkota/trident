@@ -1,6 +1,8 @@
 #include "parser.h"
+#include "expression.h"
 #include "process.h"
 
+#include "core/diags.h"
 #include "core/mem.h"
 #include "syntax/token/token.h"
 #include "syntax/tree/ast.h"
@@ -10,19 +12,16 @@ Parser *init_parser(Source *src, Token *tokens) {
     *p = (Parser){0};
     p->src = src;
     p->tokens = tokens;
+    p->tok_tail = tokens;
     p->nodes = init_arena(sizeof(AstNode) * 1024);
     return p;
 }
 
 AstNode *parse(Parser *p) {
-    Arena *a = p->nodes;
-    AstNode *one = ast_new(a, NULL, NULL);
-    AstNode *root = ast_new(a, NULL, NULL);
-    p->root = root;
-    ast_int_val(one, 1);
-    ast_binary(root, PUNCT_ADD, one, one);
+    p->root = parse_expr(p, 0);
+    expect_and_consume(p, PUNCT_SEMICOLON);
 
-    if (p->errorc > 0) parser_error(p, "parser had %zu error(s).", p->errorc);
+    if (p->errorc > 0) fatal("parser had %zu error(s).", p->errorc);
     return p->root;
 }
 
