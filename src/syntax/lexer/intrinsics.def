@@ -10,9 +10,18 @@ struct Intrinsic {
 };
 
 %%
-here,   IC_HERE
-module, IC_MODULE
-extern, IC_EXTERN
-sizeof, IC_SIZEOF
-typeof, IC_TYPEOF
+here,      IC_HERE
+module,    IC_MODULE
+import,    IC_IMPORT
+extern,    IC_EXTERN
+sizeof,    IC_SIZEOF
+typeof,    IC_TYPEOF
+alignof,   IC_ALIGNOF
+define,    IC_DEFINE
+undefine,  IC_UNDEFINE
+macro,     IC_MACRO
+attribute, IC_ATTRIBUTE
+noreturn,  IC_NORETURN
+callconv,  IC_CALLCONV
+inline,    IC_INLINE
 %%
