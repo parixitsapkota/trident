@@ -18,8 +18,12 @@ int main(int argc, const char *const *argv) {
     (void)tokens;
 
     Arena *a = init_arena(sizeof(AstNode) * 1024);
-    AstNode *one = ast_int_val(a, NULL, 1);
-    AstNode *root = ast_binary(a, NULL, AST_BINARY, PUNCT_ADD, one, one);
+    AstNode *one = ast_new(a, NULL, NULL);
+    ast_int_val(one, 1);
+
+    AstNode *root = ast_new(a, NULL, NULL);
+    ast_binary(root, PUNCT_ADD, one, one);
+
     print_ast(root);
     free_arena(a);
 

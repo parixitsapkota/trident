@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 
 #include "type/type.h"
 
@@ -25,9 +26,9 @@ typedef enum {
     AST_FLOAT,
     AST_STRING,
     AST_CHAR,
+    AST_BOOL,
     AST_UNARY,
     AST_BINARY,
-    AST_ASSIGN,
     AST_INDEX,
     AST_CALL,
 
@@ -52,6 +53,8 @@ typedef enum {
 struct AstNode {
     AstKind kind;
     Span *span;
+    Token *trivia;
+    AstNode *last;
     AstNode *next;
     Type *type;
 
@@ -65,6 +68,7 @@ struct AstNode {
         float float_val;
         const char *str;
         char char_val;
+        bool bool_val;
 
         /* AST_UNARY */
         struct {
@@ -73,7 +77,7 @@ struct AstNode {
             AstNode *operand;
         } unary;
 
-        /* AST_BINARY, AST_ASSIGN */
+        /* AST_BINARY */
         struct {
             TokenKind op;
             AstNode *lhs;
@@ -128,26 +132,26 @@ struct AstNode {
 
 VarInfo *var_info(Arena *arena, VarKind kind, Type *type);
 
-AstNode *ast_new(Arena *arena, AstKind kind, Span *span);
+AstNode *ast_new(Arena *arena, Span *span, Token *trivia);
 
-AstNode *ast_ident_val(Arena *a, Span *span, const char *name);
-AstNode *ast_int_val(Arena *a, Span *span, size_t int_val);
-AstNode *ast_float_val(Arena *a, Span *span, float float_val);
-AstNode *ast_char_val(Arena *a, Span *span, char char_val);
-AstNode *ast_string_val(Arena *a, Span *span, const char *str);
+AstNode *ast_ident_val(AstNode *base, const char *name);
+AstNode *ast_int_val(AstNode *base, size_t int_val);
+AstNode *ast_float_val(AstNode *base, float float_val);
+AstNode *ast_char_val(AstNode *base, char char_val);
+AstNode *ast_string_val(AstNode *base, const char *str);
 
-AstNode *ast_unary(Arena *a, Span *span, TokenKind op, bool postfix, AstNode *operand);
-AstNode *ast_binary(Arena *a, Span *span, AstKind kind, TokenKind op, AstNode *left,
-                    AstNode *right);
-AstNode *ast_index(Arena *a, Span *span, AstNode *left, AstNode *index);
-AstNode *ast_call(Arena *a, Span *span, const char *callee, AstNode *args, size_t argc);
+AstNode *ast_unary(AstNode *base, TokenKind op, bool postfix, AstNode *operand);
+AstNode *ast_binary(AstNode *base, TokenKind op, AstNode *left, AstNode *right);
+AstNode *ast_index(AstNode *base, AstNode *left, AstNode *index);
+AstNode *ast_call(AstNode *base, const char *callee, AstNode *args, size_t argc);
 
-AstNode *ast_stmt(Arena *a, Span *span, AstKind kind, AstNode *expr);
-AstNode *ast_cond(Arena *a, Span *span, AstNode *cond, AstNode *then_b, AstNode *else_b);
-AstNode *ast_ctl(Arena *a, Span *span, AstKind kind, AstNode *cond, AstNode *body);
-AstNode *ast_block(Arena *a, Span *span, AstNode *stmts);
+AstNode *ast_stmt(AstNode *base, AstNode *expr);
+AstNode *ast_cond(AstNode *base, AstNode *cond, AstNode *then_b, AstNode *else_b);
+AstNode *ast_ctl(AstNode *base, AstNode *cond, AstNode *body);
+AstNode *ast_block(AstNode *base, AstNode *stmts);
 
-AstNode *ast_function(Arena *a, Span *span, const char *name, AstNode *params,
-                      size_t nparams, AstNode *body);
+AstNode *ast_function(AstNode *base, const char *name, AstNode *params, size_t nparams,
+                      AstNode *body);
 
 void print_ast(AstNode *root);
+void format_ast(FILE *file, AstNode *root);

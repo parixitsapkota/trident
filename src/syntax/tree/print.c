@@ -10,13 +10,14 @@
 static const char *ast_kind_to_string(AstKind kind) {
     static const char *const names[] = {
         /* expressions */
-        [AST_INT] = "AST_INT",
-        [AST_CHAR] = "AST_CHAR",
-        [AST_STRING] = "AST_STRING",
         [AST_IDENT] = "AST_IDENT",
+        [AST_INT] = "AST_INT",
+        [AST_FLOAT] = "AST_FLOAT",
+        [AST_STRING] = "AST_STRING",
+        [AST_CHAR] = "AST_CHAR",
+        [AST_BOOL] = "AST_BOOL",
         [AST_UNARY] = "AST_UNARY",
         [AST_BINARY] = "AST_BINARY",
-        [AST_ASSIGN] = "AST_ASSIGN",
         [AST_INDEX] = "AST_INDEX",
         [AST_CALL] = "AST_CALL",
 
@@ -24,7 +25,11 @@ static const char *ast_kind_to_string(AstKind kind) {
         [AST_BLOCK] = "AST_BLOCK",
         [AST_EXPR_STMT] = "AST_EXPR_STMT",
         [AST_IF] = "AST_IF",
+        [AST_ELSE_IF] = "AST_ELSE_IF",
+        [AST_ELSE] = "AST_ELSE",
+        [AST_LOOP] = "AST_LOOP",
         [AST_WHILE] = "AST_WHILE",
+        [AST_MATCH] = "AST_MATCH",
         [AST_CASE] = "AST_CASE",
         [AST_BREAK] = "AST_BREAK",
         [AST_CONTINUE] = "AST_CONTINUE",
@@ -57,6 +62,10 @@ static void print_node_label(const AstNode *node) {
     case AST_STRING:
         printf(FGB_CYAN "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.str);
         break;
+    case AST_BOOL:
+        printf(FGB_CYAN "%s: " FG_RED "%s" RESET, kind,
+               node->as.bool_val ? "true" : "false");
+        break;
     case AST_UNARY:
         printf(FGB_CYAN "%s: " FG_RED "%s " FG_YELLOW "op" FGB_CYAN " : " FG_RED
                         "`%s`" RESET,
@@ -65,10 +74,6 @@ static void print_node_label(const AstNode *node) {
         break;
     case AST_BINARY:
         printf(FGB_CYAN "%s: " FG_YELLOW "op" FGB_CYAN " : " FG_RED "`%s`" RESET, kind,
-               token_kind_to_str(node->as.binary.op));
-        break;
-    case AST_ASSIGN:
-        printf(FGB_YELLOW "%s: " FG_YELLOW "op" FGB_CYAN " : " FG_RED "`%s`" RESET, kind,
                token_kind_to_str(node->as.binary.op));
         break;
     case AST_FUNCTION:
@@ -96,7 +101,6 @@ static Kids get_kids(const AstNode *n) {
     switch (n->kind) {
     case AST_UNARY: kids_add(&k, n->as.unary.operand); break;
     case AST_BINARY:
-    case AST_ASSIGN:
         kids_add(&k, n->as.binary.lhs);
         kids_add(&k, n->as.binary.rhs);
         break;
