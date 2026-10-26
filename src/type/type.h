@@ -21,14 +21,14 @@ typedef enum {
 
 typedef enum {
     PRIMITIVE_VOID,
-    PRIMITIVE_I8, // TYPE ICHAR
+    PRIMITIVE_I8,
     PRIMITIVE_I16,
     PRIMITIVE_I32,
     PRIMITIVE_I64,
     PRIMITIVE_I128,
     PRIMITIVE_ISIZE,
-    PRIMITIVE_U8,  // TYPE CHAR
-    PRIMITIVE_U16, // TYPE WCHAR
+    PRIMITIVE_U8,
+    PRIMITIVE_U16,
     PRIMITIVE_U32,
     PRIMITIVE_U64,
     PRIMITIVE_U128,
@@ -89,7 +89,21 @@ struct Type {
     } as;
 };
 
-Type *type_primitive(Arena *arena, const Token *kind);
+typedef enum {
+    STATIC_VAR,
+    PARAM_VAR,
+    FRAME_VAR,
+} InfoKind;
+
+typedef struct {
+    InfoKind kind;
+    Type *type;
+} Info;
+
+bool is_primitive_kind(const TokenKind kind);
+PrimitiveKind primitive_kind(const TokenKind kind);
+
+Type *type_primitive(Arena *arena, PrimitiveKind kind);
 Type *type_pointer(Arena *arena, Type *base);
 Type *type_slice(Arena *arena, Type *base);
 Type *type_array(Arena *arena, Type *base, size_t size);
@@ -97,3 +111,5 @@ Type *type_function(Arena *arena, Member *params, size_t params_count, Type *ret
 Type *type_object(Arena *arena, TypeKind kind, Member *members, size_t members_count,
                   const char *name);
 Type *type_type(Arena *arena, Type *base, const char *name);
+
+Info *info(Arena *arena, InfoKind kind, Type *type);

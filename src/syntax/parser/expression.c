@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "expression.h"
+#include "process.h"
 
 #include "core/source.h"
 #include "syntax/parser/parser.h"

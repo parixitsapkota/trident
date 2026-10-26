@@ -12,13 +12,6 @@
 
 typedef struct AstNode AstNode;
 
-typedef enum { STATIC_VAR, FRAME_VAR, PARAM_VAR } VarKind;
-
-typedef struct {
-    VarKind kind;
-    Type *type;
-} VarInfo;
-
 typedef enum {
     /* expressions */
     AST_IDENT,
@@ -48,6 +41,7 @@ typedef enum {
 
     /* declarations */
     AST_FUNCTION,
+    AST_PARAMS,
 } AstKind;
 
 struct AstNode {
@@ -59,11 +53,13 @@ struct AstNode {
     Type *type;
 
     union {
-        /* AST_IDENT, AST_INT, AST_FLOAT, AST_STRING, AST_CHAR, */
+        /* AST_IDENT, AST_PARAMS */
         struct {
             const char *name;
-            VarInfo *info;
+            Info *info;
         } ident;
+
+        /* AST_INT, AST_FLOAT, AST_STRING, AST_CHAR, */
         size_t int_val;
         float float_val;
         const char *str;
@@ -122,15 +118,16 @@ struct AstNode {
 
         /* AST_FUNCTION */
         struct {
+            bool noreturn;
+            bool public;
             const char *name;
             AstNode *params;
             size_t nparams;
             AstNode *body;
+            Type *return_type;
         } func;
     } as;
 };
-
-VarInfo *var_info(Arena *arena, VarKind kind, Type *type);
 
 AstNode *ast_new(Arena *arena, Span *span, Token *trivia);
 
@@ -145,13 +142,14 @@ AstNode *ast_binary(AstNode *base, TokenKind op, AstNode *left, AstNode *right);
 AstNode *ast_index(AstNode *base, AstNode *left, AstNode *index);
 AstNode *ast_call(AstNode *base, const char *callee, AstNode *args, size_t argc);
 
-AstNode *ast_stmt(AstNode *base, AstNode *expr);
-AstNode *ast_cond(AstNode *base, AstNode *cond, AstNode *then_b, AstNode *else_b);
-AstNode *ast_ctl(AstNode *base, AstNode *cond, AstNode *body);
+AstNode *ast_stmt(AstNode *base, AstKind kind, AstNode *expr);
+AstNode *ast_cond(AstNode *base, AstKind kind, AstNode *cond, AstNode *then_b,
+                  AstNode *else_b);
+AstNode *ast_ctl(AstNode *base, AstKind kind, AstNode *cond, AstNode *body);
 AstNode *ast_block(AstNode *base, AstNode *stmts);
 
-AstNode *ast_function(AstNode *base, const char *name, AstNode *params, size_t nparams,
-                      AstNode *body);
+AstNode *ast_function(AstNode *base, bool noreturn, bool public, const char *name,
+                      AstNode *params, size_t nparams, AstNode *body);
 
 void print_ast(AstNode *root);
 void format_ast(FILE *file, AstNode *root);

@@ -48,7 +48,7 @@ void *parser_error(Parser *p, const char *fmt, ...) {
     ++p->errorc;
     va_list args;
     va_start(args, fmt);
-    vdiag_err(p->src, p->tok_tail->span, false, fmt, args);
+    vdiag_err(p->src, current(p)->span, false, fmt, args);
     va_end(args);
     return NULL;
 }

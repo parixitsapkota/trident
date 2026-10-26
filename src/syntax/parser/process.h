@@ -20,23 +20,34 @@ struct Parser {
     size_t errorc;
 };
 
+typedef enum {
+    PREC_UNKNOWN = -1,
+    PREC_NONE = 0,
+    PREC_ASSIGNMENT,
+    PREC_CONDITIONAL,
+    PREC_BIT_OR,
+    PREC_BIT_AND,
+    PREC_RELATIONAL,
+    PREC_EQUALITY,
+    PREC_BITSHIFT,
+    PREC_ADDITIVE,
+    PREC_MULTIPLICATIVE,
+} Precedence;
+
 typedef struct {
     AstNode *first;
     AstNode *last;
 } NodeChain;
 
-void chain_append(NodeChain *c, AstNode *head);
-
 Token *current(Parser *p);
-
 Token *next(Parser *p);
-
 Token *pconsume(Parser *p);
-
 bool expect(Parser *p, TokenKind kind);
-
 bool expect_and_consume(Parser *p, TokenKind kind);
-
 bool is_kind(Parser *p, TokenKind kind);
 
+void chain_append(NodeChain *c, AstNode *head);
+
 void *parser_error(Parser *p, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
+
+AstNode *parse_expr(Parser *p, Precedence prec);

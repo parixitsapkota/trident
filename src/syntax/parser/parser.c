@@ -1,11 +1,11 @@
 #include "parser.h"
-#include "expression.h"
 #include "process.h"
 
 #include "core/diags.h"
 #include "core/mem.h"
 #include "syntax/token/token.h"
 #include "syntax/tree/ast.h"
+#include <stdbool.h>
 
 Parser *init_parser(Source *src, Token *tokens) {
     Parser *p = xmalloc(sizeof(Parser));
@@ -18,9 +18,7 @@ Parser *init_parser(Source *src, Token *tokens) {
 }
 
 AstNode *parse(Parser *p) {
-    p->root = parse_expr(p, 0);
-    expect_and_consume(p, PUNCT_SEMICOLON);
-
+    p->root = parse_expr(p, PREC_NONE);
     if (p->errorc > 0) fatal("parser had %zu error(s).", p->errorc);
     return p->root;
 }

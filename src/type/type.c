@@ -1,18 +1,44 @@
 #include "type.h"
 #include "core/mem.h"
 #include "syntax/token/token.h"
+#include <stdbool.h>
 
-PrimitiveKind primitive_kind(const Token *kind) {
-    switch (kind->kind) {
+bool is_primitive_kind(const TokenKind kind) {
+    switch (kind) {
+    case KW_VOID:
+    case KW_I8:
+    case KW_I16:
+    case KW_I32:
+    case KW_I64:
+    case KW_I128:
+    case KW_ISIZE:
+    case KW_U8:
+    case KW_U16:
+    case KW_U32:
+    case KW_U64:
+    case KW_U128:
+    case KW_USIZE:
+    case KW_BOOL:
+    case KW_F16:
+    case KW_F32:
+    case KW_F64:
+    case KW_F128:
+    case KW_STR: return true;
+    default: return false;
+    }
+}
+
+PrimitiveKind primitive_kind(const TokenKind kind) {
+    switch (kind) {
     case KW_VOID: return PRIMITIVE_VOID;
-    case KW_I8: return PRIMITIVE_I8; // TYPE ICHAR
+    case KW_I8: return PRIMITIVE_I8;
     case KW_I16: return PRIMITIVE_I16;
     case KW_I32: return PRIMITIVE_I32;
     case KW_I64: return PRIMITIVE_I64;
     case KW_I128: return PRIMITIVE_I128;
     case KW_ISIZE: return PRIMITIVE_ISIZE;
-    case KW_U8: return PRIMITIVE_U8;   // TYPE CHAR
-    case KW_U16: return PRIMITIVE_U16; // TYPE WCHAR
+    case KW_U8: return PRIMITIVE_U8;
+    case KW_U16: return PRIMITIVE_U16;
     case KW_U32: return PRIMITIVE_U32;
     case KW_U64: return PRIMITIVE_U64;
     case KW_U128: return PRIMITIVE_U128;
@@ -27,9 +53,9 @@ PrimitiveKind primitive_kind(const Token *kind) {
     }
 }
 
-Type *type_primitive(Arena *arena, const Token *kind) {
+Type *type_primitive(Arena *arena, PrimitiveKind kind) {
     Type *t = arena_alloc(arena, sizeof(Type));
-    *t = (Type){TYPE_PRIMITIVE, .as.primitive = primitive_kind(kind)};
+    *t = (Type){TYPE_PRIMITIVE, .as.primitive = kind};
     return t;
 }
 
@@ -70,4 +96,10 @@ Type *type_type(Arena *arena, Type *base, const char *name) {
     Type *t = arena_alloc(arena, sizeof(Type));
     *t = (Type){TYPE_TYPE, .as.type.type = base, .as.type.name = name};
     return t;
+}
+
+Info *info(Arena *arena, InfoKind kind, Type *type) {
+    Info *info = arena_alloc(arena, sizeof(Info));
+    *info = (Info){kind, type};
+    return info;
 }

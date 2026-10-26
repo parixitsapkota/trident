@@ -53,35 +53,46 @@ static void print_node_label(const AstNode *node) {
     case AST_INT:
         printf(FGB_CYAN "%s: " FG_GREEN "\"%zu\"" RESET, kind, node->as.int_val);
         break;
+
     case AST_CHAR:
         printf(FGB_CYAN "%s: " FG_GREEN "%zu" RESET, kind, node->as.int_val);
         break;
+
     case AST_IDENT:
         printf(FGB_CYAN "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.ident.name);
         break;
+
     case AST_STRING:
         printf(FGB_CYAN "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.str);
         break;
+
     case AST_BOOL:
         printf(FGB_CYAN "%s: " FG_RED "%s" RESET, kind,
                node->as.bool_val ? "true" : "false");
         break;
+
     case AST_UNARY:
         printf(FGB_CYAN "%s: " FG_RED "%s " FG_YELLOW "op" FGB_CYAN " : " FG_RED
                         "`%s`" RESET,
                kind, node->as.unary.postfix ? "postfix" : "prefix",
                token_kind_to_str(node->as.unary.op));
         break;
+
     case AST_BINARY:
         printf(FGB_CYAN "%s: " FG_YELLOW "op" FGB_CYAN " : " FG_RED "`%s`" RESET, kind,
                token_kind_to_str(node->as.binary.op));
         break;
+
     case AST_FUNCTION:
-        printf(FG_RED "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.func.name);
+        printf(FG_RED "%s: " FG_GREEN "\"%s\"" FG_RED " %s" FG_BLUE " %s" RESET, kind,
+               node->as.func.name, node->as.func.noreturn ? "noreturn" : "",
+               node->as.func.public ? "public" : "");
         break;
+
     case AST_CALL:
         printf(FGB_MAGENTA "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.call.callee);
         break;
+
     default: printf(FG_RED "%s:" RESET, kind); break;
     }
     putchar('\n');

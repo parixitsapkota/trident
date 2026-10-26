@@ -1,12 +1,6 @@
 #include "ast.h"
 #include "core/mem.h"
 
-VarInfo *var_info(Arena *arena, VarKind kind, Type *type) {
-    VarInfo *info = arena_alloc(arena, sizeof(VarInfo));
-    *info = (VarInfo){kind, type};
-    return info;
-}
-
 AstNode *ast_new(Arena *arena, Span *span, Token *trivia) {
     AstNode *base = arena_alloc(arena, sizeof(AstNode));
     *base = (AstNode){.span = span, .trivia = trivia};
@@ -71,5 +65,45 @@ AstNode *ast_call(AstNode *base, const char *callee, AstNode *args, size_t argc)
     base->as.call.callee = callee;
     base->as.call.args = args;
     base->as.call.argc = argc;
+    return base;
+}
+
+AstNode *ast_stmt(AstNode *base, AstKind kind, AstNode *expr) {
+    base->kind = kind;
+    base->as.stmt.expr = expr;
+    return base;
+}
+
+AstNode *ast_cond(AstNode *base, AstKind kind, AstNode *cond, AstNode *then_b,
+                  AstNode *else_b) {
+    base->kind = kind;
+    base->as.cond.cond = cond;
+    base->as.cond.then_b = then_b;
+    base->as.cond.else_b = else_b;
+    return base;
+}
+
+AstNode *ast_ctl(AstNode *base, AstKind kind, AstNode *cond, AstNode *body) {
+    base->kind = kind;
+    base->as.ctl.expr = cond;
+    base->as.ctl.body = body;
+    return base;
+}
+
+AstNode *ast_block(AstNode *base, AstNode *stmts) {
+    base->kind = AST_BLOCK;
+    base->as.block.stmts = stmts;
+    return base;
+}
+
+AstNode *ast_function(AstNode *base, bool noreturn, bool public, const char *name,
+                      AstNode *params, size_t nparams, AstNode *body) {
+    base->kind = AST_FUNCTION;
+    base->as.func.noreturn = noreturn;
+    base->as.func.public = public;
+    base->as.func.name = name;
+    base->as.func.params = params;
+    base->as.func.nparams = nparams;
+    base->as.func.body = body;
     return base;
 }
