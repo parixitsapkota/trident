@@ -15,7 +15,7 @@ int main(int argc, const char *const *argv) {
 
     Source *src = init_source(argv[1]);
     Lexer *l = init_lexer(src);
-    Token *tokens = lex(l, false);
+    Token *tokens = lex(l, false, NULL);
     Parser *p = init_parser(src, tokens);
     AstNode *root = parse(p);
     print_ast(root);

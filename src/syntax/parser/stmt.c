@@ -81,6 +81,7 @@ AstNode *parse_stmt(Parser *p) {
     case KW_BREAK: return parse_expr_stmt(p, AST_BREAK);
     case KW_CONTINUE: return parse_expr_stmt(p, AST_CONTINUE);
     case KW_RETURN: return parse_expr_stmt(p, AST_RETURN);
+    case KW_LET: return parse_let_stmt(p);
     case PUNCT_O_BRACE: return parse_block_stmt(p);
     default: {
         AstNode *expr = parse_expr(p, PREC_NONE);

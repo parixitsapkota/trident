@@ -1,6 +1,10 @@
 // This is a test example
 // This code doesn't compile.
 
-++a + b[20]--
+++a
+ +
+ b[20]
+ --
 /
-!foo(10 -3);
+!
+foo(10 -3);

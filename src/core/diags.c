@@ -2,166 +2,191 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "diags.h"
 
 #include "def.h"
+#include "syntax/lexer/lexer.h"
+#include "syntax/token/token.h"
 
 #define TAB_WIDTH 4
 #define MAX_MID_LINES 4
 
-static void put_n(char c, size_t n) {
-    while (n--)
-        fputc(c, stderr);
+static void put_n(char character, size_t count) {
+    while (count--)
+        fputc(character, stderr);
 }
 
-static int digits(size_t n) {
-    int d = 1;
-    while (n >= 10) {
-        n /= 10;
-        ++d;
+static int digits(size_t number) {
+    int digit_count = 1;
+    while (number >= 10) {
+        number /= 10;
+        ++digit_count;
     }
-    return d;
+    return digit_count;
 }
 
-static size_t vcol(const char *s, size_t cn) {
-    size_t col = 0, i = 0;
-    for (; i < cn && s[i]; ++i)
-        col += (s[i] == '\t') ? TAB_WIDTH - col % TAB_WIDTH : 1;
-    return col + (cn - i);
+static size_t vcol(const char *line, size_t char_number) {
+    size_t visual_column = 0, index = 0;
+    for (; index < char_number && line[index]; ++index)
+        visual_column +=
+            (line[index] == '\t') ? TAB_WIDTH - visual_column % TAB_WIDTH : 1;
+    return visual_column + (char_number - index);
 }
 
-static void put_expanded(const char *s) {
-    size_t col = 0;
-    for (; *s; ++s) {
-        if (*s == '\t') {
-            size_t n = TAB_WIDTH - col % TAB_WIDTH;
-            put_n(' ', n);
-            col += n;
+static char *expand_tabs(const char *string) {
+    char *expanded = malloc(strlen(string) * TAB_WIDTH + 1);
+    size_t visual_column = 0;
+    for (; *string; ++string) {
+        if (*string == '\t') {
+            size_t space_count = TAB_WIDTH - visual_column % TAB_WIDTH;
+            for (size_t i = 0; i < space_count; ++i)
+                expanded[visual_column + i] = ' ';
+            visual_column += space_count;
         } else {
-            fputc(*s, stderr);
-            ++col;
+            expanded[visual_column++] = *string;
         }
     }
+    expanded[visual_column] = '\0';
+    return expanded;
+}
+
+static void put_highlighted(const Source *origin, const char *line_text) {
+    char *line_string = expand_tabs(line_text);
+    Source *source = init_source(origin->file_path);
+    Lexer *lexer = init_lexer(source);
+    Token *tokens = lex(lexer, true, line_string);
+    print_tokens(tokens);
+    free_lexer(lexer);
+    free_source(source);
+    free(line_string);
     fputc('\n', stderr);
 }
 
-static void gutter(int w, size_t ln) {
-    if (ln)
-        fprintf(stderr, DIM " %*zu | " RESET, w, ln);
+static void gutter(int width, size_t line_number) {
+    if (line_number)
+        fprintf(stderr, DIM " %*zu | " RESET, width, line_number);
     else
-        fprintf(stderr, DIM " %*s | " RESET, w, "");
+        fprintf(stderr, DIM " %*s | " RESET, width, "");
 }
 
-static void render_mid(int w, const char *col, size_t ln, const char *text) {
-    gutter(w, ln);
-    fprintf(stderr, "%s|" RESET " ", col);
-    put_expanded(text);
+static void render_mid(const Source *source, int width, const char *color,
+                       size_t line_number, const char *line_text) {
+    gutter(width, line_number);
+    fprintf(stderr, "%s|" RESET " ", color);
+    put_highlighted(source, line_text);
 }
 
-static void diag_render_span(const Source *src, const Span *sp, bool rh) {
-    size_t sl = sp->start.ln;
-    size_t el = sp->end.ln < sl ? sl : sp->end.ln;
+static void diag_render_span(const Source *source, const Span *span, bool red_highlight) {
+    size_t start_line = span->start.ln;
+    size_t end_line = span->end.ln < start_line ? start_line : span->end.ln;
 
-    if (sl == 0 || el > src->nlines)
-        fatal("incorrect line range: %zu-%zu for src: %s", sl, el, src->file_path);
+    if (start_line == 0 || end_line > source->nlines)
+        fatal("incorrect line range: %zu-%zu for src: %s", start_line, end_line,
+              source->file_path);
 
-    const char *col = rh ? FGB_RED : FGB_GREEN;
-    const char *ls = src->lines[sl - 1];
-    int w = digits(el);
-    size_t sc = vcol(ls, sp->start.cn);
+    const char *color = red_highlight ? FGB_RED : FGB_GREEN;
+    const char *start_line_text = source->lines[start_line - 1];
+    int width = digits(end_line);
+    size_t start_column = vcol(start_line_text, span->start.cn);
 
-    if (el == sl) {
-        size_t ec = vcol(ls, sp->end.cn);
-        size_t tildes = ec > sc + 1 ? ec - sc - 1 : 0;
-        --sc;
+    if (end_line == start_line) {
+        size_t end_column = vcol(start_line_text, span->end.cn);
+        size_t tilde_count =
+            end_column > start_column + 1 ? end_column - start_column - 1 : 0;
+        --start_column;
 
-        gutter(w, sl);
-        put_expanded(ls);
-        gutter(w, 0);
-        put_n(' ', sc);
-        fputs(col, stderr);
+        gutter(width, start_line);
+        put_highlighted(source, start_line_text);
+        gutter(width, 0);
+        put_n(' ', start_column);
+        fputs(color, stderr);
         fputc('^', stderr);
-        put_n('~', tildes);
+        put_n('~', tilde_count);
         fputs(RESET "\n", stderr);
         return;
     }
 
-    const char *le = src->lines[el - 1];
-    size_t last = sp->end.cn ? sp->end.cn - 1 : 0;
-    size_t ec = vcol(le, last);
+    const char *end_line_text = source->lines[end_line - 1];
+    size_t last_char_index = span->end.cn ? span->end.cn - 1 : 0;
+    size_t end_column = vcol(end_line_text, last_char_index);
 
-    gutter(w, sl);
+    gutter(width, start_line);
     fputs("  ", stderr);
-    put_expanded(ls);
+    put_highlighted(source, start_line_text);
 
-    gutter(w, 0);
+    gutter(width, 0);
     fputc(' ', stderr);
-    fputs(col, stderr);
-    put_n('_', sc);
+    fputs(color, stderr);
+    put_n('_', start_column);
     fputs("^" RESET "\n", stderr);
 
-    size_t ms = sl + 1, me = el - 1;
-    if (me >= ms) {
-        if (me - ms + 1 > MAX_MID_LINES) {
-            render_mid(w, col, ms, src->lines[ms - 1]);
-            render_mid(w, col, ms + 1, src->lines[ms]);
-            fprintf(stderr, " %*s\n", w < 3 ? 3 : w, "...");
-            render_mid(w, col, me, src->lines[me - 1]);
+    size_t middle_start = start_line + 1, middle_end = end_line - 1;
+    if (middle_end >= middle_start) {
+        if (middle_end - middle_start + 1 > MAX_MID_LINES) {
+            render_mid(source, width, color, middle_start,
+                       source->lines[middle_start - 1]);
+            render_mid(source, width, color, middle_start + 1,
+                       source->lines[middle_start]);
+            fprintf(stderr, " %*s\n", width < 3 ? 3 : width, "...");
+            render_mid(source, width, color, middle_end, source->lines[middle_end - 1]);
         } else {
-            for (size_t l = ms; l <= me; ++l)
-                render_mid(w, col, l, src->lines[l - 1]);
+            for (size_t line = middle_start; line <= middle_end; ++line)
+                render_mid(source, width, color, line, source->lines[line - 1]);
         }
     }
 
-    render_mid(w, col, el, le);
+    render_mid(source, width, color, end_line, end_line_text);
 
-    gutter(w, 0);
-    fputs(col, stderr);
+    gutter(width, 0);
+    fputs(color, stderr);
     fputc('|', stderr);
-    put_n('_', ec);
+    put_n('_', end_column);
     fputs("^" RESET "\n", stderr);
 }
 
-void verror(const char *fmt, va_list args) {
+void verror(const char *format, va_list arguments) {
     fputs(BOLD FGB_RED "ERROR: " FGB_WHITE, stderr);
-    vfprintf(stderr, fmt, args);
+    vfprintf(stderr, format, arguments);
     fputs(RESET "\n", stderr);
 }
 
-void vdiag_err(const Source *src, Span *span, bool rh, const char *fmt, va_list args) {
-    if (src != NULL && span != NULL) {
-        fprintf(stderr, BOLD FGB_WHITE "%s:%zu:%zu: " RESET, src->file_path,
+void vdiag_err(const Source *source, Span *span, bool red_highlight, const char *format,
+               va_list arguments) {
+    if (source != NULL && span != NULL) {
+        fprintf(stderr, BOLD FGB_WHITE "%s:%zu:%zu: " RESET, source->file_path,
                 span->start.ln, span->start.cn + 1);
     }
-    verror(fmt, args);
-    if (src != NULL && span != NULL) diag_render_span(src, span, rh);
+    verror(format, arguments);
+    if (source != NULL && span != NULL) diag_render_span(source, span, red_highlight);
 }
 
-void diag_err(const Source *src, Span *span, bool rh, const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    vdiag_err(src, span, rh, fmt, args);
-    va_end(args);
+void diag_err(const Source *source, Span *span, bool red_highlight, const char *format,
+              ...) {
+    va_list arguments;
+    va_start(arguments, format);
+    vdiag_err(source, span, red_highlight, format, arguments);
+    va_end(arguments);
 }
 
-void error(const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    verror(fmt, args);
-    va_end(args);
+void error(const char *format, ...) {
+    va_list arguments;
+    va_start(arguments, format);
+    verror(format, arguments);
+    va_end(arguments);
 }
 
-static void vfatal(const char *fmt, va_list args) {
+static void vfatal(const char *format, va_list arguments) {
     fputs(BOLD FGB_RED "FATAL: " FGB_WHITE, stderr);
-    vfprintf(stderr, fmt, args);
+    vfprintf(stderr, format, arguments);
     fputs(RESET "\n", stderr);
 }
 
-[[noreturn]] void fatal(const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    vfatal(fmt, args);
-    va_end(args);
+[[noreturn]] void fatal(const char *format, ...) {
+    va_list arguments;
+    va_start(arguments, format);
+    vfatal(format, arguments);
+    va_end(arguments);
     exit(EXIT_FAILURE);
 }

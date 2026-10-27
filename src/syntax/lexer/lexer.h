@@ -6,5 +6,5 @@
 typedef struct Lexer Lexer;
 
 Lexer *init_lexer(Source *src);
-Token *lex(Lexer *l, bool lex_all);
+Token *lex(Lexer *l, bool lex_all, const char *buffer);
 void free_lexer(Lexer *l);

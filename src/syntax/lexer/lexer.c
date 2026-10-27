@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "keywords.h"
 #include "lexer.h"
@@ -77,7 +78,7 @@ static bool consume_until_quote(Lexer *l, char quote) {
     return false;
 }
 
-static void lex_quoted(Lexer *l, Location start) {
+static void lex_quoted(Lexer *l, bool lex_all, Location start) {
     const char quote = peek(l, 0);
     consume(l, 1);
     const size_t body = l->i;
@@ -90,7 +91,8 @@ static void lex_quoted(Lexer *l, Location start) {
     }
 
     char *text = substr(l->lexeme, l->buffer, body, l->i);
-    const size_t length = decode_escapes(l, start, text, l->i - body);
+    const size_t length = 1;
+    if (!lex_all) decode_escapes(l, start, text, l->i - body);
     consume(l, 1);
 
     if (quote == '"') {
@@ -194,7 +196,11 @@ Lexer *init_lexer(Source *src) {
     return l;
 }
 
-Token *lex(Lexer *l, bool lex_all) {
+Token *lex(Lexer *l, bool lex_all, const char *buffer) {
+    if (lex_all) {
+        l->buffer = buffer;
+        l->buf_len = strlen(buffer);
+    }
     while (!is_at_end(l)) {
         const Location start = location(l->ln, l->cn, l->i);
         const char c = peek(l, 0);
@@ -221,7 +227,7 @@ Token *lex(Lexer *l, bool lex_all) {
             continue;
         }
         if (c == '"' || c == '\'') {
-            lex_quoted(l, start);
+            lex_quoted(l, lex_all, start);
             continue;
         }
         if (c == '@') {
