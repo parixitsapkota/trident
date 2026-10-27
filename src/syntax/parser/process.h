@@ -54,3 +54,4 @@ AstNode *parse_expr(Parser *p, Precedence prec);
 
 AstNode *parse_let_stmt(Parser *p);
 AstNode *parse_func_stmt(Parser *p, bool public);
+AstNode *parse_stmt(Parser *p);

@@ -1,6 +1,10 @@
 // This is a test example
 // This code doesn't compile.
 
-func main() -> i32;
+func main() -> i32 return 0;
 
-func noreturn() @noreturn;
+func noreturn() @noreturn {
+    func_name();
+    break 070;
+    exit();
+};

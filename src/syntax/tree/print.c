@@ -54,6 +54,8 @@ static void print_node_label(const AstNode *node) {
     const char *kind = ast_kind_to_string(node->kind);
 
     switch (node->kind) {
+    case AST_PROGRAM: printf(FGB_CYAN "%s:" RESET, kind); break;
+
     case AST_INT:
         printf(FGB_CYAN "%s: " FG_GREEN "\"%zu\"" RESET, kind, node->as.int_val);
         break;
@@ -145,6 +147,8 @@ static Kids get_kids(const AstNode *n) {
     case AST_BLOCK: kids_add(&k, n->as.block.stmts); break;
 
     case AST_EXPR_STMT:
+    case AST_CONTINUE:
+    case AST_BREAK:
     case AST_RETURN:
     case AST_ELSE:
     case AST_LOOP:
