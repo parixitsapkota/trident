@@ -36,8 +36,8 @@ static const Punctuator punctuators[] = {
 
 static void lex_comment(Lexer *l, Location start, bool lex_all) {
     consume(l, 2);
-    while (!is_at_end(l)) {
-        if (peek(l, 0) == '\n') {
+    for (;;) {
+        if (is_at_end(l) || peek(l, 0) == '\n') {
             if (lex_all) {
                 const Location end = location(l->ln, l->cn, l->i);
                 char *comment = substr(l->lexeme, l->buffer, start.i, l->i);
@@ -47,8 +47,6 @@ static void lex_comment(Lexer *l, Location start, bool lex_all) {
         }
         consume(l, 1);
     }
-    fatal("%s:%zu:%zu: Unterminated block comment.", l->src->file_path, start.ln,
-          start.cn);
 }
 
 static void lex_identifier(Lexer *l, Location start) {
