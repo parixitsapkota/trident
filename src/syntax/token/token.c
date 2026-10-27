@@ -6,25 +6,25 @@
 #include "core/mem.h"
 
 const char *token_kind_to_str(TokenKind kind) {
-    switch (kind) {
-#define LITERAL(tok)                                                                     \
-    case tok##_LIT: return #tok;
-#define KEYWORD(tok, name)                                                               \
-    case KW_##tok: return name;
-#define PUNCTUATION(tok, name)                                                           \
-    case PUNCT_##tok: return name;
-#define TOKEN(tok, name)                                                                 \
-    case tok: return name;
-#define INTRINSIC(tok, name)                                                             \
-    case IC_##tok: return name;
+    static const char *const names[] = {
+#define LITERAL(tok, name) [tok##_LIT] = #tok,
+#define KEYWORD(tok, name) [KW_##tok] = #tok,
+#define PUNCTUATION(tok, name) [PUNCT_##tok] = #tok,
+#define TOKEN(tok, name) [tok] = #tok,
+#define INTRINSIC(tok, name) [IC_##tok] = #tok,
 #include "token.def"
 #undef INTRINSIC
 #undef TOKEN
 #undef LITERAL
 #undef KEYWORD
 #undef PUNCTUATION
-    default: return "\"nil\"";
+    };
+
+    size_t count = sizeof(names) / sizeof(names[0]);
+    if ((size_t)kind < count && names[kind] != NULL) {
+        return names[kind];
     }
+    return "AST_UNKNOWN";
 }
 
 Token *token(Arena *arena, TokenKind kind, const char *lexeme, Span *span, NumValue val) {
@@ -44,7 +44,7 @@ void print_token(const char *file_name, const Token *token) {
     case INT_LIT: fprintf(stderr, FG_RED "%zu", token->val.i); break;
     case FLOAT_LIT: fprintf(stderr, FG_RED "%g", token->val.f); break;
     case STRING_LIT: fprintf(stderr, FG_GREEN "\"%s\"", token->lexeme); break;
-#define LITERAL(tok)
+#define LITERAL(tok, name)
 #define KEYWORD(tok, name)                                                               \
     case KW_##tok: fprintf(stderr, FG_MAGENTA "%s", token->lexeme); break;
 #define INTRINSIC(tok, name)                                                             \

@@ -5,7 +5,7 @@
 #include "core/source.h"
 
 typedef enum {
-#define LITERAL(tok) tok##_LIT,
+#define LITERAL(tok, name) tok##_LIT,
 #define KEYWORD(tok, name) KW_##tok,
 #define PUNCTUATION(tok, name) PUNCT_##tok,
 #define TOKEN(tok, name) tok,

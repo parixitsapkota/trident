@@ -20,7 +20,7 @@ typedef struct {
 } Punctuator;
 
 static const Punctuator punctuators[] = {
-#define LITERAL(tok)
+#define LITERAL(tok, name)
 #define KEYWORD(tok, name)
 #define PUNCTUATION(tok, str) {str, sizeof(str) - 1, PUNCT_##tok},
 #define TOKEN(tok, name)
