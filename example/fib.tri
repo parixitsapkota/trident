@@ -1,3 +1,6 @@
+// This is a test/mock-up example
+// This code may not compile.
+
 @extern "c" printf;
 
 func main() i32 {

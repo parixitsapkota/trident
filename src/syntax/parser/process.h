@@ -51,3 +51,5 @@ void chain_append(NodeChain *c, AstNode *head);
 void *parser_error(Parser *p, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
 
 AstNode *parse_expr(Parser *p, Precedence prec);
+
+AstNode *parse_let_stmt(Parser *p);

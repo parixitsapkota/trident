@@ -9,6 +9,8 @@
 
 static const char *ast_kind_to_string(AstKind kind) {
     static const char *const names[] = {
+        [AST_PROGRAM] = "AST_PROGRAM",
+
         /* expressions */
         [AST_IDENT] = "AST_IDENT",
         [AST_INT] = "AST_INT",
@@ -37,6 +39,8 @@ static const char *ast_kind_to_string(AstKind kind) {
 
         /* declarations */
         [AST_FUNCTION] = "AST_FUNCTION",
+        [AST_PARAMS] = "AST_PARAMS",
+        [AST_LET] = "AST_LET",
     };
 
     size_t count = sizeof(names) / sizeof(names[0]);
@@ -111,32 +115,44 @@ static Kids get_kids(const AstNode *n) {
     Kids k = {0};
     switch (n->kind) {
     case AST_UNARY: kids_add(&k, n->as.unary.operand); break;
+
     case AST_BINARY:
         kids_add(&k, n->as.binary.lhs);
         kids_add(&k, n->as.binary.rhs);
         break;
+
     case AST_IF:
         kids_add(&k, n->as.cond.cond);
         kids_add(&k, n->as.cond.then_b);
         kids_add(&k, n->as.cond.else_b);
         break;
+
     case AST_WHILE:
     case AST_CASE:
         kids_add(&k, n->as.ctl.expr);
         kids_add(&k, n->as.ctl.body);
         break;
+
     case AST_INDEX:
         kids_add(&k, n->as.index.left);
         kids_add(&k, n->as.index.index);
         break;
+
     case AST_CALL: kids_add(&k, n->as.call.args); break;
+
     case AST_BLOCK: kids_add(&k, n->as.block.stmts); break;
+
     case AST_EXPR_STMT:
-    case AST_RETURN: kids_add(&k, n->as.stmt.expr); break;
+    case AST_RETURN:
+    case AST_ELSE:
+    case AST_LOOP:
+    case AST_LET: kids_add(&k, n->as.stmt.expr); break;
+
     case AST_FUNCTION:
         kids_add(&k, n->as.func.params);
         kids_add(&k, n->as.func.body);
         break;
+
     default: break;
     }
     return k;

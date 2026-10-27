@@ -13,6 +13,8 @@
 typedef struct AstNode AstNode;
 
 typedef enum {
+    AST_PROGRAM,
+
     /* expressions */
     AST_IDENT,
     AST_INT,
@@ -42,6 +44,7 @@ typedef enum {
     /* declarations */
     AST_FUNCTION,
     AST_PARAMS,
+    AST_LET,
 } AstKind;
 
 struct AstNode {
@@ -111,7 +114,7 @@ struct AstNode {
             AstNode *stmts;
         } block;
 
-        /* AST_EXPR_STMT, AST_RETURN, AST_ELSE, AST_LOOP */
+        /* AST_EXPR_STMT, AST_RETURN, AST_ELSE, AST_LOOP, AST_LET */
         struct {
             AstNode *expr;
         } stmt;

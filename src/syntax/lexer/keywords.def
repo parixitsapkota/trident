@@ -39,6 +39,7 @@ pub,      KW_PUB
 volatile, KW_VOLATILE
 const,    KW_CONST
 mut,      KW_MUT
+let,     KW_LET
 func,     KW_FUNC
 return,   KW_RETURN
 if,       KW_IF

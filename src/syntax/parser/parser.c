@@ -18,7 +18,7 @@ Parser *init_parser(Source *src, Token *tokens) {
 }
 
 AstNode *parse(Parser *p) {
-    p->root = parse_expr(p, PREC_NONE);
+    p->root = parse_let_stmt(p);
     if (p->errorc > 0) fatal("parser had %zu error(s).", p->errorc);
     return p->root;
 }
