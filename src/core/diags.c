@@ -48,9 +48,9 @@ static void put_expanded(const char *s) {
 
 static void gutter(int w, size_t ln) {
     if (ln)
-        fprintf(stderr, " %*zu | ", w, ln);
+        fprintf(stderr, DIM " %*zu | " RESET, w, ln);
     else
-        fprintf(stderr, " %*s | ", w, "");
+        fprintf(stderr, DIM " %*s | " RESET, w, "");
 }
 
 static void render_mid(int w, const char *col, size_t ln, const char *text) {
@@ -74,6 +74,7 @@ static void diag_render_span(const Source *src, const Span *sp, bool rh) {
     if (el == sl) {
         size_t ec = vcol(ls, sp->end.cn);
         size_t tildes = ec > sc + 1 ? ec - sc - 1 : 0;
+        --sc;
 
         gutter(w, sl);
         put_expanded(ls);
@@ -97,7 +98,7 @@ static void diag_render_span(const Source *src, const Span *sp, bool rh) {
     gutter(w, 0);
     fputc(' ', stderr);
     fputs(col, stderr);
-    put_n('_', sc + 1);
+    put_n('_', sc);
     fputs("^" RESET "\n", stderr);
 
     size_t ms = sl + 1, me = el - 1;
@@ -118,7 +119,7 @@ static void diag_render_span(const Source *src, const Span *sp, bool rh) {
     gutter(w, 0);
     fputs(col, stderr);
     fputc('|', stderr);
-    put_n('_', ec + 1);
+    put_n('_', ec);
     fputs("^" RESET "\n", stderr);
 }
 

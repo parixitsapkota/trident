@@ -104,7 +104,7 @@ AstNode *parse_atom(Parser *p) {
     case IDENTIFIER_LIT: return ast_ident_val(base, tok->lexeme);
     case STRING_LIT: return ast_string_val(base, tok->lexeme);
     default:
-        return parser_error(p, "expected a literal, but got `%s`",
+        return parser_error(p, NULL, "expected a literal, but got `%s`",
                             token_kind_to_str(tok->kind));
     }
 }
@@ -113,7 +113,7 @@ AstNode *parse_paren_expr(Parser *p) {
     expect_and_consume(p, PUNCT_O_PREN);
 
     if (is_expression_delimiter(current(p)->kind)) {
-        parser_error(p, "expected a expression");
+        parser_error(p, NULL, "expected a expression");
         pconsume(p);
         return NULL;
     }
@@ -194,7 +194,7 @@ AstNode *parse_call(Parser *p) {
         if (is_kind(p, PUNCT_COMMA)) {
             if (next(p)) {
                 if (next(p)->kind == PUNCT_C_PREN)
-                    parser_error(p, "expected a expression after `,`");
+                    parser_error(p, NULL, "expected a expression after `,`");
             }
             pconsume(p);
         } else {
@@ -236,7 +236,7 @@ AstNode *parse_expr(Parser *p, Precedence prec) {
         if (is_expression_delimiter(tok->kind)) break;
         if (op_prec == PREC_UNKNOWN) {
             const char *got = token_kind_to_str(tok->kind);
-            parser_error(p, "expected `;` before `%s`", got);
+            parser_error(p, NULL, "expected `;` before `%s`", got);
             op_prec = PREC_ADDITIVE;
             op = PUNCT_ADD;
             goto IF_FAKE_OP;

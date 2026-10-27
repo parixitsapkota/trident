@@ -45,7 +45,7 @@ AstNode *parse_func_stmt(Parser *p, bool public) {
 
     expect_and_consume(p, PUNCT_ARROW);
     if (!is_primitive_kind(current(p)->kind)) {
-        parser_error(p, "expected a type identifier but got `%s'",
+        parser_error(p, current(p)->span, "expected a type identifier but got `%s'",
                      token_kind_to_str(current(p)->kind));
     } else {
         type = pconsume(p);

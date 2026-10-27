@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "core/source.h"
 #include "process.h"
 
 #include "core/diags.h"
@@ -29,9 +30,10 @@ AstNode *parse(Parser *p) {
         case KW_FUNC: node = parse_func_stmt(p, false); break;
         case PUNCT_SEMICOLON: pconsume(p); continue;
         default: {
-            TokenKind bad = pconsume(p)->kind;
-            parser_error(p, "expected a declaration but got `%s'",
-                         token_kind_to_str(bad));
+            Span *start = current(p)->span;
+            (void)parse_expr(p, PREC_NONE);
+            Span *span = span_merge(start, current(p)->span);
+            parser_error(p, span, "expected a declaration!");
             continue;
         }
         }

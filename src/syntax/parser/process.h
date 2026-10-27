@@ -48,7 +48,7 @@ bool is_kind(Parser *p, TokenKind kind);
 
 void chain_append(NodeChain *c, AstNode *head);
 
-void *parser_error(Parser *p, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
+void *parser_error(Parser *p, Span *span, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
 
 AstNode *parse_expr(Parser *p, Precedence prec);
 

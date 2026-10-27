@@ -44,11 +44,11 @@ bool expect_and_consume(Parser *p, TokenKind kind) {
 
 inline bool is_kind(Parser *p, TokenKind kind) { return current(p)->kind == kind; }
 
-void *parser_error(Parser *p, const char *fmt, ...) {
+void *parser_error(Parser *p, Span *span, const char *fmt, ...) {
     ++p->errorc;
     va_list args;
     va_start(args, fmt);
-    vdiag_err(p->src, current(p)->span, false, fmt, args);
+    vdiag_err(p->src, span == NULL ? current(p)->span : span, false, fmt, args);
     va_end(args);
     return NULL;
 }
