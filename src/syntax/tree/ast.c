@@ -1,5 +1,6 @@
 #include "ast.h"
 #include "core/mem.h"
+#include "syntax/token/token.h"
 
 AstNode *ast_new(Arena *arena, Span *span, Token *trivia) {
     AstNode *base = arena_alloc(arena, sizeof(AstNode));
@@ -74,6 +75,13 @@ AstNode *ast_stmt(AstNode *base, AstKind kind, AstNode *expr) {
     return base;
 }
 
+AstNode *ast_let(AstNode *base, AstNode *expr, Token *type) {
+    base->kind = AST_LET;
+    base->as.let.expr = expr;
+    base->as.let.type = type;
+    return base;
+}
+
 AstNode *ast_cond(AstNode *base, AstKind kind, AstNode *cond, AstNode *then_b,
                   AstNode *else_b) {
     base->kind = kind;
@@ -97,7 +105,8 @@ AstNode *ast_block(AstNode *base, AstNode *stmts) {
 }
 
 AstNode *ast_function(AstNode *base, bool noreturn, bool public, const char *name,
-                      AstNode *params, size_t nparams, AstNode *body) {
+                      AstNode *params, size_t nparams, AstNode *body,
+                      Token *return_type) {
     base->kind = AST_FUNCTION;
     base->as.func.noreturn = noreturn;
     base->as.func.public = public;
@@ -105,5 +114,6 @@ AstNode *ast_function(AstNode *base, bool noreturn, bool public, const char *nam
     base->as.func.params = params;
     base->as.func.nparams = nparams;
     base->as.func.body = body;
+    base->as.func.return_type = return_type;
     return base;
 }

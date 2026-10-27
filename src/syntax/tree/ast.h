@@ -114,10 +114,16 @@ struct AstNode {
             AstNode *stmts;
         } block;
 
-        /* AST_EXPR_STMT, AST_RETURN, AST_ELSE, AST_LOOP, AST_LET */
+        /* AST_EXPR_STMT, AST_RETURN, AST_ELSE, AST_LOOP */
         struct {
             AstNode *expr;
         } stmt;
+
+        /* AST_LET */
+        struct {
+            Token *type;
+            AstNode *expr;
+        } let;
 
         /* AST_FUNCTION */
         struct {
@@ -127,7 +133,7 @@ struct AstNode {
             AstNode *params;
             size_t nparams;
             AstNode *body;
-            Type *return_type;
+            Token *return_type;
         } func;
     } as;
 };
@@ -146,13 +152,15 @@ AstNode *ast_index(AstNode *base, AstNode *left, AstNode *index);
 AstNode *ast_call(AstNode *base, const char *callee, AstNode *args, size_t argc);
 
 AstNode *ast_stmt(AstNode *base, AstKind kind, AstNode *expr);
+AstNode *ast_let(AstNode *base, AstNode *expr, Token *type);
 AstNode *ast_cond(AstNode *base, AstKind kind, AstNode *cond, AstNode *then_b,
                   AstNode *else_b);
 AstNode *ast_ctl(AstNode *base, AstKind kind, AstNode *cond, AstNode *body);
 AstNode *ast_block(AstNode *base, AstNode *stmts);
 
 AstNode *ast_function(AstNode *base, bool noreturn, bool public, const char *name,
-                      AstNode *params, size_t nparams, AstNode *body);
+                      AstNode *params, size_t nparams, AstNode *body,
+                      Token *return_type);
 
 void print_ast(AstNode *root);
 void format_ast(FILE *file, AstNode *root);

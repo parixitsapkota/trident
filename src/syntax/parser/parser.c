@@ -18,7 +18,29 @@ Parser *init_parser(Source *src, Token *tokens) {
 }
 
 AstNode *parse(Parser *p) {
-    p->root = parse_let_stmt(p);
+    NodeChain chain = {0};
+
+    for (;;) {
+        AstNode *node = NULL;
+
+        switch (current(p)->kind) {
+        case END_OF_TOKEN: goto done;
+        case KW_LET: node = parse_let_stmt(p); break;
+        case KW_FUNC: node = parse_func_stmt(p, false); break;
+        case PUNCT_SEMICOLON: pconsume(p); continue;
+        default: {
+            TokenKind bad = pconsume(p)->kind;
+            parser_error(p, "expected a declaration but got `%s'",
+                         token_kind_to_str(bad));
+            continue;
+        }
+        }
+
+        if (node != NULL) chain_append(&chain, node);
+    }
+
+done:
+    p->root = chain.first;
     if (p->errorc > 0) fatal("parser had %zu error(s).", p->errorc);
     return p->root;
 }

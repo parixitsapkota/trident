@@ -88,9 +88,11 @@ static void print_node_label(const AstNode *node) {
         break;
 
     case AST_FUNCTION:
-        printf(FG_RED "%s: " FG_GREEN "\"%s\"" FG_RED " %s" FG_BLUE " %s" RESET, kind,
-               node->as.func.name, node->as.func.noreturn ? "noreturn" : "",
-               node->as.func.public ? "public" : "");
+        printf(FG_RED "%s:" FG_BLUE "%s" FG_GREEN " \"%s\"" FG_RED " -> %s" FG_RED
+                      "%s" RESET,
+               kind, node->as.func.public ? " public" : "", node->as.func.name,
+               node->as.func.return_type != NULL ? node->as.func.return_type->lexeme : "",
+               node->as.func.noreturn ? "noreturn" : "");
         break;
 
     case AST_CALL:
