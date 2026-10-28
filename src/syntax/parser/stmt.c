@@ -48,6 +48,7 @@ AstNode *parse_func_param(Parser *p) {
     }
 
     Token *start = type ? type : name_tok;
+    start->kind = TYPE;
     Token *last = name_tok ? name_tok : type;
     Span *span = span_merge(start->span, last->span);
     AstNode *base = ast_new(p->nodes, span, last->next);
