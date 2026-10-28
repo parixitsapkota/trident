@@ -43,7 +43,7 @@ typedef enum {
 
     /* declarations */
     AST_FUNCTION,
-    AST_PARAMS,
+    AST_PARAM,
     AST_LET,
 } AstKind;
 
@@ -56,7 +56,7 @@ struct AstNode {
     Type *type;
 
     union {
-        /* AST_IDENT, AST_PARAMS */
+        /* AST_IDENT */
         struct {
             const char *name;
             Info *info;
@@ -135,6 +135,12 @@ struct AstNode {
             AstNode *body;
             Token *return_type;
         } func;
+
+        /* AST_PARAM */
+        struct {
+            Token *type;
+            const char *name;
+        } param;
     } as;
 };
 
@@ -159,8 +165,8 @@ AstNode *ast_ctl(AstNode *base, AstKind kind, AstNode *cond, AstNode *body);
 AstNode *ast_block(AstNode *base, AstNode *stmts);
 
 AstNode *ast_function(AstNode *base, bool noreturn, bool public, const char *name,
-                      AstNode *params, size_t nparams, AstNode *body,
-                      Token *return_type);
+                      AstNode *params, size_t nparams, AstNode *body, Token *return_type);
+AstNode *ast_param(AstNode *base, const char *name, Token *type);
 
 void print_ast(AstNode *root);
 void format_ast(FILE *file, AstNode *root);

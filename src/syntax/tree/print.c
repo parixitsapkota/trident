@@ -39,7 +39,7 @@ static const char *ast_kind_to_string(AstKind kind) {
 
         /* declarations */
         [AST_FUNCTION] = "AST_FUNCTION",
-        [AST_PARAMS] = "AST_PARAMS",
+        [AST_PARAM] = "AST_PARAM",
         [AST_LET] = "AST_LET",
     };
 
@@ -97,6 +97,11 @@ static void print_node_label(const AstNode *node) {
                node->as.func.noreturn ? "noreturn" : "");
         break;
 
+    case AST_PARAM:
+        printf(FGB_MAGENTA "%s: " FG_BLUE "%s" FG_GREEN " \"%s\"" RESET, kind,
+               node->as.param.type->lexeme, node->as.param.name);
+        break;
+
     case AST_CALL:
         printf(FGB_MAGENTA "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.call.callee);
         break;
@@ -144,6 +149,7 @@ static Kids get_kids(const AstNode *n) {
 
     case AST_CALL: kids_add(&k, n->as.call.args); break;
 
+    case AST_PROGRAM:
     case AST_BLOCK: kids_add(&k, n->as.block.stmts); break;
 
     case AST_EXPR_STMT:

@@ -41,8 +41,9 @@ AstNode *parse(Parser *p) {
         if (node != NULL) chain_append(&chain, node);
     }
 
-done:
-    p->root = chain.first;
+done:;
+    AstNode *base = ast_new(p->nodes, NULL, NULL);
+    p->root = ast_stmt(base, AST_PROGRAM, chain.first);
     if (p->errorc > 0) fatal("parser had %zu error(s).", p->errorc);
     return p->root;
 }

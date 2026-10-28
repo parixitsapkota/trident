@@ -117,3 +117,10 @@ AstNode *ast_function(AstNode *base, bool noreturn, bool public, const char *nam
     base->as.func.return_type = return_type;
     return base;
 }
+
+AstNode *ast_param(AstNode *base, const char *name, Token *type) {
+    base->kind = AST_PARAM;
+    base->as.param.name = name;
+    base->as.param.type = type;
+    return base;
+}
