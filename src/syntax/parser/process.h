@@ -2,9 +2,9 @@
 
 #include "parser.h"
 
-#include "core/source.h"
+#include "core/source/source.h"
 #include "syntax/token/token.h"
-#include "syntax/tree/ast.h"
+#include "syntax/ast/ast.h"
 
 struct Parser {
     const Source *src;

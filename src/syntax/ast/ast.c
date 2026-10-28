@@ -1,6 +1,6 @@
 #include "ast.h"
 
-#include "core/mem.h"
+#include "core/mem/mem.h"
 #include "syntax/token/token.h"
 
 AstNode *ast_new(Arena *arena, Span *span, Token *trivia) {

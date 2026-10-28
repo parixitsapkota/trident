@@ -3,11 +3,11 @@
 #include "parser.h"
 #include "process.h"
 
-#include "core/diags.h"
-#include "core/mem.h"
-#include "core/source.h"
+#include "core/diags/diags.h"
+#include "core/mem/mem.h"
+#include "core/source/source.h"
+#include "syntax/ast/ast.h"
 #include "syntax/token/token.h"
-#include "syntax/tree/ast.h"
 
 Parser *init_parser(Source *src, Token *tokens) {
     Parser *p = xmalloc(sizeof(Parser));

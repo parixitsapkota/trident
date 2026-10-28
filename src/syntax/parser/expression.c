@@ -4,9 +4,9 @@
 #include "parser.h"
 #include "process.h"
 
-#include "core/source.h"
+#include "core/source/source.h"
+#include "syntax/ast/ast.h"
 #include "syntax/token/token.h"
-#include "syntax/tree/ast.h"
 
 static AstNode *parse_primary(Parser *p);
 

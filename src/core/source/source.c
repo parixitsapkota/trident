@@ -4,10 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "core/def.h"
+#include "core/diags/diags.h"
+#include "core/mem/mem.h"
 #include "source.h"
-#include "def.h"
-#include "diags.h"
-#include "mem.h"
 
 static FILE *openf(const char *path, uint8_t mode) {
     const char *mode_str = mode ? "rb" : "wa";

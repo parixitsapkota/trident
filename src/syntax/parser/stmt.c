@@ -2,12 +2,12 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "core/source.h"
+#include "core/source/source.h"
 #include "parser.h"
 
+#include "syntax/ast/ast.h"
 #include "syntax/parser/process.h"
 #include "syntax/token/token.h"
-#include "syntax/tree/ast.h"
 #include "type/type.h"
 
 AstNode *parse_let_stmt(Parser *p) {

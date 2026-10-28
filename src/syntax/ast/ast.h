@@ -4,8 +4,8 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "core/mem.h"
-#include "core/source.h"
+#include "core/mem/mem.h"
+#include "core/source/source.h"
 #include "syntax/token/token.h"
 #include "type/type.h"
 

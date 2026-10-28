@@ -4,8 +4,8 @@
 #include "intrinsics.h"
 #include "process.h"
 
-#include "core/diags.h"
-#include "core/mem.h"
+#include "core/diags/diags.h"
+#include "core/mem/mem.h"
 #include "syntax/token/token.h"
 
 char peek(const Lexer *l, size_t offset) {

@@ -3,7 +3,7 @@
 #include "token.h"
 
 #include "core/def.h"
-#include "core/mem.h"
+#include "core/mem/mem.h"
 
 Token *token(Arena *arena, TokenKind kind, const char *lexeme, Span *span, NumValue val) {
     Token *tok = arena_alloc(arena, sizeof(Token));

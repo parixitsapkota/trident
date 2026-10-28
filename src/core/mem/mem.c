@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "core/diags/diags.h"
 #include "mem.h"
-#include "diags.h"
 
 void *xmalloc(size_t n) {
     void *p = malloc(n ? n : 1);

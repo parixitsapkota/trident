@@ -9,9 +9,9 @@
 #include "lexer.h"
 #include "process.h"
 
-#include "core/diags.h"
-#include "core/mem.h"
-#include "core/source.h"
+#include "core/diags/diags.h"
+#include "core/mem/mem.h"
+#include "core/source/source.h"
 #include "syntax/token/token.h"
 
 typedef struct {

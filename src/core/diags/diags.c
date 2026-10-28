@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "diags.h"
-#include "def.h"
+#include "core/def.h"
+#include "core/diags/diags.h"
 
 #include "syntax/lexer/lexer.h"
 #include "syntax/token/token.h"

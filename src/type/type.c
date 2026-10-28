@@ -2,7 +2,7 @@
 
 #include "type.h"
 
-#include "core/mem.h"
+#include "core/mem/mem.h"
 #include "syntax/token/token.h"
 
 bool is_primitive_kind(const TokenKind kind) {

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "core/source.h"
 #include "syntax/token/token.h"
+
+#include "core/source/source.h"
 
 typedef struct Lexer Lexer;
 

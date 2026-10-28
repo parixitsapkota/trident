@@ -3,7 +3,7 @@
 
 #include "process.h"
 
-#include "core/diags.h"
+#include "core/diags/diags.h"
 #include "syntax/token/token.h"
 
 inline Token *current(Parser *p) { return p->tok_tail; }

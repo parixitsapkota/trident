@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 
-#include "core/source.h"
+#include "core/source/source.h"
 
 typedef enum {
 #define LITERAL(tok, name) tok##_LIT,

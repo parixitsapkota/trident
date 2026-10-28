@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "mem.h"
+#include "core/mem/mem.h"
 
 typedef struct {
     const char *file_path;

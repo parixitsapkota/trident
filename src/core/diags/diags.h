@@ -2,7 +2,7 @@
 
 #include <stdarg.h>
 
-#include "source.h"
+#include "core/source/source.h"
 
 void diag_err(const Source *src, Span *span, bool rh, const char *fmt, ...)
     __attribute__((format(printf, 4, 5)));

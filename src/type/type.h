@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "core/mem.h"
+#include "core/mem/mem.h"
 #include "syntax/token/token.h"
 
 typedef enum {

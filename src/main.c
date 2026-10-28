@@ -1,11 +1,11 @@
 #include <stdbool.h>
 
-#include "core/diags.h"
-#include "core/source.h"
+#include "core/diags/diags.h"
+#include "core/source/source.h"
+#include "syntax/ast/ast.h"
 #include "syntax/lexer/lexer.h"
 #include "syntax/parser/parser.h"
 #include "syntax/token/token.h"
-#include "syntax/tree/ast.h"
 
 int main(int argc, const char *const *argv) {
     if (argc != 2) {
