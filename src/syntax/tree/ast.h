@@ -4,11 +4,10 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "type/type.h"
-
 #include "core/mem.h"
 #include "core/source.h"
 #include "syntax/token/token.h"
+#include "type/type.h"
 
 typedef struct AstNode AstNode;
 

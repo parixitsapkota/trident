@@ -1,12 +1,13 @@
+#include <stdbool.h>
+
 #include "parser.h"
-#include "core/source.h"
 #include "process.h"
 
 #include "core/diags.h"
 #include "core/mem.h"
+#include "core/source.h"
 #include "syntax/token/token.h"
 #include "syntax/tree/ast.h"
-#include <stdbool.h>
 
 Parser *init_parser(Source *src, Token *tokens) {
     Parser *p = xmalloc(sizeof(Parser));

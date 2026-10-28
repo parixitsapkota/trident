@@ -1,3 +1,7 @@
+#include <stdbool.h>
+#include <stddef.h>
+#include <string.h>
+
 #include "core/source.h"
 #include "parser.h"
 
@@ -5,10 +9,6 @@
 #include "syntax/token/token.h"
 #include "syntax/tree/ast.h"
 #include "type/type.h"
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdnoreturn.h>
-#include <string.h>
 
 AstNode *parse_let_stmt(Parser *p) {
     Span *start = pconsume(p)->span;
@@ -88,7 +88,7 @@ AstNode *parse_func_params(Parser *p, size_t *nparams) {
 }
 
 AstNode *parse_func_stmt(Parser *p, bool public) {
-    bool _noreturn = false;
+    bool noreturn = false;
     Token *type = NULL;
     Span *start = pconsume(p)->span;
     const char *name = pconsume(p)->lexeme;
@@ -100,7 +100,7 @@ AstNode *parse_func_stmt(Parser *p, bool public) {
 
     if (current(p)->kind == IC_NORETURN) {
         pconsume(p);
-        _noreturn = true;
+        noreturn = true;
         goto parse_body;
     }
 
@@ -116,7 +116,7 @@ parse_body:;
     AstNode *body = parse_stmt(p);
     Span *span = span_merge(start, current(p)->span);
     AstNode *base = ast_new(p->nodes, span, current(p));
-    return ast_function(base, _noreturn, public, name, params, nparams, body, type);
+    return ast_function(base, noreturn, public, name, params, nparams, body, type);
 }
 
 static AstNode *parse_block_stmt(Parser *p) {

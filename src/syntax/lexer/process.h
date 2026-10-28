@@ -1,11 +1,11 @@
 #pragma once
 
-#include "lexer.h"
-
 #include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+
+#include "lexer.h"
 
 struct Lexer {
     const Source *src;

@@ -1,11 +1,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "parser.h"
 #include "process.h"
 
 #include "core/source.h"
-#include "syntax/parser/parser.h"
-#include "syntax/parser/process.h"
 #include "syntax/token/token.h"
 #include "syntax/tree/ast.h"
 

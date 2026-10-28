@@ -1,7 +1,9 @@
+#include <stdbool.h>
+
 #include "type.h"
+
 #include "core/mem.h"
 #include "syntax/token/token.h"
-#include <stdbool.h>
 
 bool is_primitive_kind(const TokenKind kind) {
     switch (kind) {

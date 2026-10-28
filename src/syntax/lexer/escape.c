@@ -1,8 +1,7 @@
-#include "lexer.h"
-
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "lexer.h"
 #include "process.h"
 
 static int digit_value(char c) {

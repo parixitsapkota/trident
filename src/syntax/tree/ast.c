@@ -1,4 +1,5 @@
 #include "ast.h"
+
 #include "core/mem.h"
 #include "syntax/token/token.h"
 

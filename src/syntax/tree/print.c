@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "ast.h"
+
 #include "core/def.h"
 #include "core/mem.h"
 #include "syntax/token/token.h"

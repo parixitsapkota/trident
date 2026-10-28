@@ -1,8 +1,8 @@
 #include <stdlib.h>
 
-#include "core/mem.h"
-
 #include "process.h"
+
+#include "core/mem.h"
 
 static size_t parse_int(const char *text) {
     if (text[0] == '0' && (text[1] == 'b' || text[1] == 'B')) {

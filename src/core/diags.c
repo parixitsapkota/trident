@@ -5,8 +5,8 @@
 #include <string.h>
 
 #include "diags.h"
-
 #include "def.h"
+
 #include "syntax/lexer/lexer.h"
 #include "syntax/token/token.h"
 

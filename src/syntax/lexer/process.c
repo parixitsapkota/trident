@@ -1,12 +1,12 @@
-#include "process.h"
+#include <stdio.h>
+#include <string.h>
 
 #include "intrinsics.h"
+#include "process.h"
 
 #include "core/diags.h"
 #include "core/mem.h"
 #include "syntax/token/token.h"
-#include <stdio.h>
-#include <string.h>
 
 char peek(const Lexer *l, size_t offset) {
     if (l->i + offset >= l->buf_len) {

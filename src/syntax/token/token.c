@@ -13,11 +13,11 @@ Token *token(Arena *arena, TokenKind kind, const char *lexeme, Span *span, NumVa
 
 const char *token_kind_to_str(TokenKind kind) {
     static const char *const names[] = {
-#define LITERAL(tok, name) [tok##_LIT] = name,
-#define KEYWORD(tok, name) [KW_##tok] = name,
-#define PUNCTUATION(tok, name) [PUNCT_##tok] = name,
-#define TOKEN(tok, name) [tok] = name,
-#define INTRINSIC(tok, name) [IC_##tok] = name,
+#define LITERAL(tok, name) [tok##_LIT] = (name),
+#define KEYWORD(tok, name) [KW_##tok] = (name),
+#define PUNCTUATION(tok, name) [PUNCT_##tok] = (name),
+#define TOKEN(tok, name) [tok] = (name),
+#define INTRINSIC(tok, name) [IC_##tok] = (name),
 #include "token.def"
 #undef INTRINSIC
 #undef TOKEN
