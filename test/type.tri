@@ -1,7 +1,9 @@
 // This is a test example
 // This code doesn't compile.
 
-i32;
-*mut u8;
-*const [20]i32;
-*const []mut i32;
+struct Type {
+    var : i32 = 10;
+};
+
+let var : Type;
+var.var = 10;

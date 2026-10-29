@@ -1,6 +1,8 @@
 # SUBSYSTEM : Parser
 
-Processes the flat stream of tokens produced by the lexer and builds a hierarchical Abstract Syntax Tree (AST) conforming to the language grammar.
+Processes the flat stream of tokens produced by the lexer and builds a hierarchical Abstract Syntax Tree (AST) conforming to the language grammar. The parse does lenient parsing in fabour of better and informed error messages.
+
+- **Lenient Parsing**: The parser recognizes what a construct is syntactically (e.g. a return stmt), even if it's in the wrong place, the parser parses it correctly without complaning.
 
 ## Files
 

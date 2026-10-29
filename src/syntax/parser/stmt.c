@@ -9,7 +9,6 @@
 #include "syntax/ast/ast.h"
 #include "syntax/parser/process.h"
 #include "syntax/token/token.h"
-#include "type/type.h"
 
 AstNode *parse_let_stmt(Parser *p) {
     Token *let_tok = pconsume(p); // `let'
@@ -107,26 +106,24 @@ AstNode *parse_func_stmt(Parser *p, bool public) {
     if (current(p)->kind == IC_NORETURN) {
         pconsume(p);
         noreturn = true;
-        goto parse_body;
+    } else {
+        expect_and_consume(p, PUNCT_ARROW);
+        type = parse_type(p);
     }
 
-    expect_and_consume(p, PUNCT_ARROW);
-    type = parse_type(p);
-
-parse_body:;
-    AstNode *body = parse_stmt(p);
+    AstNode *body = parse_any(p);
     Span *span = span_merge(start, current(p)->span);
     AstNode *base = ast_new(p->nodes, span, current(p));
     return ast_function(base, noreturn, public, name, params, nparams, body, type);
 }
 
-static AstNode *parse_block_stmt(Parser *p) {
+AstNode *parse_block_stmt(Parser *p) {
     Span *start = pconsume(p)->span;
 
     NodeChain stmts = {0};
     while (current(p) && current(p)->kind != PUNCT_C_BRACE) {
         Token *before = current(p);
-        chain_append(&stmts, parse_stmt(p));
+        chain_append(&stmts, parse_any(p));
 
         if (current(p) == before && current(p)) pconsume(p);
     }
@@ -135,20 +132,4 @@ static AstNode *parse_block_stmt(Parser *p) {
     Span *span = span_merge(start, current(p)->span);
     AstNode *base = ast_new(p->nodes, span, current(p));
     return ast_stmt(base, AST_BLOCK, stmts.first);
-}
-
-AstNode *parse_stmt(Parser *p) {
-    switch (current(p)->kind) {
-    case PUNCT_SEMICOLON: return NULL;
-    case KW_BREAK: return parse_expr_stmt(p, AST_BREAK);
-    case KW_CONTINUE: return parse_expr_stmt(p, AST_CONTINUE);
-    case KW_RETURN: return parse_expr_stmt(p, AST_RETURN);
-    case KW_LET: return parse_let_stmt(p);
-    case PUNCT_O_BRACE: return parse_block_stmt(p);
-    default: {
-        AstNode *expr = parse_expr(p, PREC_NONE);
-        expect_and_consume(p, PUNCT_SEMICOLON);
-        return expr;
-    }
-    }
 }

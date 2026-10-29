@@ -19,30 +19,32 @@ Parser *init_parser(Source *src, Token *tokens) {
     return p;
 }
 
+AstNode *parse_any(Parser *p) {
+    switch (current(p)->kind) {
+    case PUNCT_SEMICOLON: pconsume(p); return NULL;
+    case PUNCT_O_BRACE: return parse_block_stmt(p);
+    case KW_LET: return parse_let_stmt(p);
+    case KW_FUNC: return parse_func_stmt(p, false);
+    case KW_RETURN: return parse_expr_stmt(p, AST_RETURN);
+    case KW_BREAK: return parse_expr_stmt(p, AST_BREAK);
+    case KW_CONTINUE: return parse_expr_stmt(p, AST_CONTINUE);
+    default: {
+        AstNode *expr = parse_expr(p, PREC_NONE);
+        expect_and_consume(p, PUNCT_SEMICOLON);
+        return expr;
+    }
+    }
+}
+
 AstNode *parse(Parser *p) {
     NodeChain chain = {0};
 
     for (;;) {
-        AstNode *node = NULL;
-
-        switch (current(p)->kind) {
-        case END_OF_TOKEN: goto done;
-        case KW_LET: node = parse_let_stmt(p); break;
-        case KW_FUNC: node = parse_func_stmt(p, false); break;
-        case PUNCT_SEMICOLON: pconsume(p); continue;
-        default: {
-            Span *start = current(p)->span;
-            (void)parse_expr(p, PREC_NONE);
-            Span *span = span_merge(start, current(p)->span);
-            parser_error(p, span, "expected a declaration!");
-            continue;
-        }
-        }
-
+        if (is_kind(p, END_OF_TOKEN)) break;
+        AstNode *node = parse_any(p);
         if (node != NULL) chain_append(&chain, node);
     }
 
-done:;
     AstNode *base = ast_new(p->nodes, NULL, NULL);
     p->root = ast_stmt(base, AST_PROGRAM, chain.first);
     if (p->errorc > 0) fatal("parser had %zu error(s).", p->errorc);
