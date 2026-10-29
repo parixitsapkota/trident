@@ -3,8 +3,8 @@
 #include "parser.h"
 
 #include "core/source/source.h"
-#include "syntax/token/token.h"
 #include "syntax/ast/ast.h"
+#include "syntax/token/token.h"
 
 struct Parser {
     const Source *src;
@@ -43,14 +43,20 @@ Token *current(Parser *p);
 Token *next(Parser *p);
 Token *pconsume(Parser *p);
 bool expect(Parser *p, TokenKind kind);
-bool expect_and_consume(Parser *p, TokenKind kind);
+Token *expect_and_consume(Parser *p, TokenKind kind);
 bool is_kind(Parser *p, TokenKind kind);
+
+bool is_expression_delimiter(TokenKind kind);
 
 void chain_append(NodeChain *c, AstNode *head);
 
-void *parser_error(Parser *p, Span *span, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
+void *parser_error(Parser *p, Span *span, const char *fmt, ...)
+    __attribute__((format(printf, 3, 4)));
 
 AstNode *parse_expr(Parser *p, Precedence prec);
+
+bool parse_constness(Parser *p);
+AstNode *parse_type(Parser *p);
 
 AstNode *parse_let_stmt(Parser *p);
 AstNode *parse_func_stmt(Parser *p, bool public);

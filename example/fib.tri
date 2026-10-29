@@ -4,14 +4,14 @@
 @extern "c" printf;
 
 func main() i32 {
-    let u8 n = 10;
-    let u64 t1 = 0;
-    let u64 t2 = 1;
-    let u64 nextTerm;
+    n : u8 = 10;
+    t1 : u64 = 0;
+    t2 : u64 = 1;
+    nextTerm : u64;
 
     printf("Fibonacci Series up to %d terms:\n", n);
 
-    let u8 @"सूचकांक चर" = 1;
+    @"सूचकांक चर" : u8 = 1;
     while ( @"सूचकांक चर" <= n) {
         printf("%llu ", t1);
         nextTerm = t1 + t2;

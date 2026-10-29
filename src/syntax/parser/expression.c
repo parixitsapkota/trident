@@ -80,18 +80,6 @@ static Precedence get_op_prec(TokenKind kind) {
     }
 }
 
-static bool is_expression_delimiter(TokenKind kind) {
-    switch (kind) {
-    case PUNCT_COMMA:
-    case PUNCT_C_PREN:
-    case PUNCT_C_BRACKET:
-    case PUNCT_COLON:
-    case PUNCT_SEMICOLON: return true;
-
-    default: return false;
-    }
-}
-
 AstNode *parse_atom(Parser *p) {
     Token *tok = current(p);
     if (is_kind_literal(tok->kind)) tok = pconsume(p);

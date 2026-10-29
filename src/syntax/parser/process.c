@@ -26,7 +26,7 @@ bool expect(Parser *p, TokenKind kind) {
         ++p->errorc;
         const char *got =
             tok ? (tok->lexeme ? tok->lexeme : token_kind_to_str(tok->kind)) : "EOF";
-        diag_err(p->src, tok ? tok->span : NULL, "expected `%s`, but found `%s`",
+        diag_err(p->src, tok ? tok->span : NULL, true, "expected `%s`, but found `%s`",
                  token_kind_to_str(kind), got);
         return false;
     }
@@ -34,12 +34,12 @@ bool expect(Parser *p, TokenKind kind) {
     return true;
 }
 
-bool expect_and_consume(Parser *p, TokenKind kind) {
-    if (!expect(p, kind)) {
-        return false;
+// TODO: seprate expect_and_consume from pconsume_if;
+Token *expect_and_consume(Parser *p, TokenKind kind) {
+    if (!is_kind(p, kind)) {
+        return NULL;
     }
-    pconsume(p);
-    return true;
+    return pconsume(p);
 }
 
 inline bool is_kind(Parser *p, TokenKind kind) { return current(p)->kind == kind; }
@@ -51,6 +51,18 @@ void *parser_error(Parser *p, Span *span, const char *fmt, ...) {
     vdiag_err(p->src, span == NULL ? current(p)->span : span, false, fmt, args);
     va_end(args);
     return NULL;
+}
+
+bool is_expression_delimiter(TokenKind kind) {
+    switch (kind) {
+    case PUNCT_COMMA:
+    case PUNCT_C_PREN:
+    case PUNCT_C_BRACKET:
+    case PUNCT_COLON:
+    case PUNCT_SEMICOLON: return true;
+
+    default: return false;
+    }
 }
 
 void chain_append(NodeChain *c, AstNode *head) {

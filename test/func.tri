@@ -1,14 +1,10 @@
 // This is a test example
 // This code may not compile.
 
-func add(i32 a, i32 b) -> i32 return a + b;
+func add(a : * i32, b : * i32) -> i32 return *a + *b;
 
-func main() -> i32 return add(34, 35);
-
-func __call_main() @noreturn {
-    exit(main());
-};
-
-func _start() @noreturn {
-    __call_main();
+func main() -> i32 {
+    let a : i32 = 34;
+    let b : i32 = 35;
+    return add(&a, &b);
 }

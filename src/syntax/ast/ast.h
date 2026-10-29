@@ -44,6 +44,12 @@ typedef enum {
     AST_FUNCTION,
     AST_PARAM,
     AST_LET,
+
+    /* type */
+    AST_TYPE_NAME,
+    AST_TYPE_POINTER,
+    AST_TYPE_SLICE,
+    AST_TYPE_ARRAY,
 } AstKind;
 
 struct AstNode {
@@ -52,7 +58,6 @@ struct AstNode {
     Token *trivia;
     AstNode *last;
     AstNode *next;
-    Type *type;
 
     union {
         /* AST_IDENT */
@@ -120,8 +125,10 @@ struct AstNode {
 
         /* AST_LET */
         struct {
-            Token *type;
+            const char *name;
+            AstNode *type;
             AstNode *expr;
+            bool mutable;
         } let;
 
         /* AST_FUNCTION */
@@ -132,12 +139,27 @@ struct AstNode {
             AstNode *params;
             size_t nparams;
             AstNode *body;
-            Token *return_type;
+            AstNode *return_type;
         } func;
+
+        /* AST_TYPE_NAME */
+        Token *type_tok;
+
+        /* AST_TYPE_ARRAY */
+        struct {
+            AstNode *inner;
+            AstNode *len;
+        } array;
+
+        /* AST_TYPE_POINTER, AST_TYPE_SLICE */
+        struct {
+            AstNode *inner;
+            bool mutable;
+        } pointer;
 
         /* AST_PARAM */
         struct {
-            Token *type;
+            AstNode *type;
             const char *name;
         } param;
     } as;
@@ -157,15 +179,21 @@ AstNode *ast_index(AstNode *base, AstNode *left, AstNode *index);
 AstNode *ast_call(AstNode *base, const char *callee, AstNode *args, size_t argc);
 
 AstNode *ast_stmt(AstNode *base, AstKind kind, AstNode *expr);
-AstNode *ast_let(AstNode *base, AstNode *expr, Token *type);
+AstNode *ast_let(AstNode *base, const char *name, AstNode *type, AstNode *expr,
+                 bool mutable);
 AstNode *ast_cond(AstNode *base, AstKind kind, AstNode *cond, AstNode *then_b,
                   AstNode *else_b);
 AstNode *ast_ctl(AstNode *base, AstKind kind, AstNode *cond, AstNode *body);
 AstNode *ast_block(AstNode *base, AstNode *stmts);
 
+AstNode *ast_type(AstNode *base, Token *type);
+AstNode *ast_array(AstNode *base, AstNode *inner, AstNode *len);
+AstNode *ast_pointer(AstNode *base, AstKind kind, AstNode *inner, bool mutable);
+
 AstNode *ast_function(AstNode *base, bool noreturn, bool public, const char *name,
-                      AstNode *params, size_t nparams, AstNode *body, Token *return_type);
-AstNode *ast_param(AstNode *base, const char *name, Token *type);
+                      AstNode *params, size_t nparams, AstNode *body,
+                      AstNode *return_type);
+AstNode *ast_param(AstNode *base, const char *name, AstNode *type);
 
 void print_ast(AstNode *root);
 void format_ast(FILE *file, AstNode *root);

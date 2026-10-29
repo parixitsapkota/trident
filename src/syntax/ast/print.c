@@ -10,45 +10,51 @@
 
 static const char *ast_kind_to_string(AstKind kind) {
     static const char *const names[] = {
-        [AST_PROGRAM] = "AST_PROGRAM",
+        [AST_PROGRAM] = "PROGRAM",
 
         /* expressions */
-        [AST_IDENT] = "AST_IDENT",
-        [AST_INT] = "AST_INT",
-        [AST_FLOAT] = "AST_FLOAT",
-        [AST_STRING] = "AST_STRING",
-        [AST_CHAR] = "AST_CHAR",
-        [AST_BOOL] = "AST_BOOL",
-        [AST_UNARY] = "AST_UNARY",
-        [AST_BINARY] = "AST_BINARY",
-        [AST_INDEX] = "AST_INDEX",
-        [AST_CALL] = "AST_CALL",
+        [AST_IDENT] = "IDENT",
+        [AST_INT] = "INT",
+        [AST_FLOAT] = "FLOAT",
+        [AST_STRING] = "STRING",
+        [AST_CHAR] = "CHAR",
+        [AST_BOOL] = "BOOL",
+        [AST_UNARY] = "UNARY",
+        [AST_BINARY] = "BINARY",
+        [AST_INDEX] = "INDEX",
+        [AST_CALL] = "CALL",
 
         /* statements */
-        [AST_BLOCK] = "AST_BLOCK",
-        [AST_EXPR_STMT] = "AST_EXPR_STMT",
-        [AST_IF] = "AST_IF",
-        [AST_ELSE_IF] = "AST_ELSE_IF",
-        [AST_ELSE] = "AST_ELSE",
-        [AST_LOOP] = "AST_LOOP",
-        [AST_WHILE] = "AST_WHILE",
-        [AST_MATCH] = "AST_MATCH",
-        [AST_CASE] = "AST_CASE",
-        [AST_BREAK] = "AST_BREAK",
-        [AST_CONTINUE] = "AST_CONTINUE",
-        [AST_RETURN] = "AST_RETURN",
+        [AST_BLOCK] = "BLOCK",
+        [AST_EXPR_STMT] = "EXPR_STMT",
+        [AST_IF] = "IF",
+        [AST_ELSE_IF] = "ELSE_IF",
+        [AST_ELSE] = "ELSE",
+        [AST_LOOP] = "LOOP",
+        [AST_WHILE] = "WHILE",
+        [AST_MATCH] = "MATCH",
+        [AST_CASE] = "CASE",
+        [AST_BREAK] = "BREAK",
+        [AST_CONTINUE] = "CONTINUE",
+        [AST_RETURN] = "RETURN",
 
         /* declarations */
-        [AST_FUNCTION] = "AST_FUNCTION",
-        [AST_PARAM] = "AST_PARAM",
-        [AST_LET] = "AST_LET",
+        [AST_FUNCTION] = "FUNCTION",
+        [AST_PARAM] = "PARAM",
+        [AST_LET] = "LET",
+
+        /* type */
+        [AST_TYPE_NAME] = "TYPE_NAME",
+        [AST_TYPE_POINTER] = "TYPE_POINTER",
+        [AST_TYPE_SLICE] = "TYPE_SLICE",
+        [AST_TYPE_ARRAY] = "TYPE_ARRAY",
     };
 
     size_t count = sizeof(names) / sizeof(names[0]);
     if ((size_t)kind < count && names[kind] != NULL) {
         return names[kind];
     }
-    return "AST_UNKNOWN";
+    return "UNKNOWN";
 }
 
 static void print_node_label(const AstNode *node) {
@@ -58,19 +64,19 @@ static void print_node_label(const AstNode *node) {
     case AST_PROGRAM: printf(FGB_CYAN "%s:" RESET, kind); break;
 
     case AST_INT:
-        printf(FGB_CYAN "%s: " FG_GREEN "\"%zu\"" RESET, kind, node->as.int_val);
+        printf(FGB_MAGENTA "%s: " FG_GREEN "\"%zu\"" RESET, kind, node->as.int_val);
         break;
 
     case AST_CHAR:
-        printf(FGB_CYAN "%s: " FG_GREEN "%zu" RESET, kind, node->as.int_val);
+        printf(FGB_MAGENTA "%s: " FG_GREEN "%zu" RESET, kind, node->as.int_val);
         break;
 
     case AST_IDENT:
-        printf(FGB_CYAN "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.ident.name);
+        printf(FGB_MAGENTA "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.ident.name);
         break;
 
     case AST_STRING:
-        printf(FGB_CYAN "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.str);
+        printf(FGB_MAGENTA "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.str);
         break;
 
     case AST_BOOL:
@@ -79,32 +85,46 @@ static void print_node_label(const AstNode *node) {
         break;
 
     case AST_UNARY:
-        printf(FGB_CYAN "%s: " FG_RED "%s " FG_YELLOW "op" FGB_CYAN " : " FG_RED
-                        "`%s`" RESET,
-               kind, node->as.unary.postfix ? "postfix" : "prefix",
+        printf(FGB_CYAN "%s: " FG_RED "%s" FGB_CYAN " : " FG_RED "`%s`" RESET, kind,
+               node->as.unary.postfix ? "postfix" : "prefix",
                token_kind_to_str(node->as.unary.op));
         break;
 
     case AST_BINARY:
-        printf(FGB_CYAN "%s: " FG_YELLOW "op" FGB_CYAN " : " FG_RED "`%s`" RESET, kind,
+        printf(FGB_CYAN "%s:" FGB_CYAN " : " FG_RED "`%s`" RESET, kind,
                token_kind_to_str(node->as.binary.op));
         break;
 
+    case AST_LET:
+        printf(FGB_MAGENTA "%s:" FG_RED "%s" FG_GREEN " \"%s\" " RESET, kind,
+               node->as.let.mutable ? "" : " mut", node->as.let.name);
+        break;
+
     case AST_FUNCTION:
-        printf(FG_RED "%s:" FG_BLUE "%s" FG_GREEN " \"%s\"" FG_RED " -> %s" FG_RED
-                      "%s" RESET,
-               kind, node->as.func.public ? " public" : "", node->as.func.name,
-               node->as.func.return_type != NULL ? node->as.func.return_type->lexeme : "",
+        printf(FG_RED "%s: " FG_BLUE "%s" FG_GREEN "\"%s\"" FG_RED " %s" RESET, kind,
+               node->as.func.public ? "public " : "", node->as.func.name,
                node->as.func.noreturn ? "noreturn" : "");
         break;
 
     case AST_PARAM:
-        printf(FGB_MAGENTA "%s: " FG_BLUE "%s" FG_GREEN " \"%s\"" RESET, kind,
-               node->as.param.type->lexeme, node->as.param.name);
+        printf(FGB_MAGENTA "%s: " FG_GREEN " \"%s\"" RESET, kind, node->as.param.name);
         break;
 
     case AST_CALL:
         printf(FGB_MAGENTA "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.call.callee);
+        break;
+
+    case AST_TYPE_NAME:
+        printf(FGB_CYAN "%s: -> " FG_GREEN "\"%s\"" RESET, kind,
+               node->as.type_tok->lexeme);
+        break;
+
+    case AST_TYPE_ARRAY: printf(FGB_CYAN "%s: " RESET, kind); break;
+
+    case AST_TYPE_POINTER:
+    case AST_TYPE_SLICE:
+        printf(FGB_CYAN "%s: " FG_RED "%s" RESET, kind,
+               node->as.pointer.mutable ? "mut" : "const");
         break;
 
     default: printf(FG_RED "%s:" RESET, kind); break;
@@ -158,13 +178,28 @@ static Kids get_kids(const AstNode *n) {
     case AST_BREAK:
     case AST_RETURN:
     case AST_ELSE:
-    case AST_LOOP:
-    case AST_LET: kids_add(&k, n->as.stmt.expr); break;
+    case AST_LOOP: kids_add(&k, n->as.stmt.expr); break;
+
+    case AST_LET:
+        kids_add(&k, n->as.let.type);
+        kids_add(&k, n->as.let.expr);
+        break;
+
+    case AST_TYPE_ARRAY:
+        kids_add(&k, n->as.array.inner);
+        kids_add(&k, n->as.array.len);
+        break;
+
+    case AST_TYPE_POINTER:
+    case AST_TYPE_SLICE: kids_add(&k, n->as.pointer.inner); break;
 
     case AST_FUNCTION:
+        kids_add(&k, n->as.func.return_type);
         kids_add(&k, n->as.func.params);
         kids_add(&k, n->as.func.body);
         break;
+
+    case AST_PARAM: kids_add(&k, n->as.param.type); break;
 
     default: break;
     }

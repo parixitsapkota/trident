@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "core/source/source.h"
@@ -11,12 +12,30 @@
 #include "type/type.h"
 
 AstNode *parse_let_stmt(Parser *p) {
-    Span *start = pconsume(p)->span;
-    Token *type = pconsume(p);
-    AstNode *expr = parse_expr(p, PREC_NONE);
-    Span *span = span_merge(start, current(p)->span);
-    AstNode *base = ast_new(p->nodes, span, current(p));
-    return ast_let(base, expr, type);
+    Token *let_tok = pconsume(p); // `let'
+
+    bool mutable = parse_constness(p);
+
+    const char *name = expect_and_consume(p, IDENTIFIER_LIT)->lexeme;
+    if (!name) return NULL;
+
+    if (!expect_and_consume(p, PUNCT_COLON)) return NULL;
+
+    AstNode *type = parse_type(p);
+    if (!type) return NULL;
+
+    AstNode *expr = NULL;
+    if (is_kind(p, PUNCT_ASSIGN)) {
+        pconsume(p); // `='
+        expr = parse_expr(p, PREC_NONE);
+        if (!expr) return NULL;
+    }
+
+    Token *semi = expect_and_consume(p, PUNCT_SEMICOLON);
+
+    Span *span = span_merge(let_tok->span, semi ? semi->span : let_tok->span);
+    AstNode *base = ast_new(p->nodes, span, let_tok);
+    return ast_let(base, name, type, expr, mutable);
 }
 
 AstNode *parse_expr_stmt(Parser *p, AstKind kind) {
@@ -28,31 +47,18 @@ AstNode *parse_expr_stmt(Parser *p, AstKind kind) {
 }
 
 AstNode *parse_func_param(Parser *p) {
-    Token *type = NULL, *name_tok = NULL;
-
-    if (is_primitive_kind(current(p)->kind) || is_kind(p, IDENTIFIER_LIT))
-        type = pconsume(p);
-
-    if (is_kind(p, IDENTIFIER_LIT)) name_tok = pconsume(p);
-
-    if (!type && !name_tok) {
-        parser_error(p, NULL, "expected a parameter before `%s'",
+    const char *name = NULL;
+    if (is_kind(p, IDENTIFIER_LIT)) name = pconsume(p)->lexeme;
+    if (!name)
+        parser_error(p, NULL, "expected a name, but got `%s'",
                      token_kind_to_str(current(p)->kind));
-        return NULL;
-    } else if (!type) {
-        parser_error(p, NULL, "expected a parameter type before `%s'",
-                     token_kind_to_str(current(p)->kind));
-    } else if (!name_tok) {
-        parser_error(p, NULL, "expected a parameter name before `%s'",
-                     token_kind_to_str(current(p)->kind));
-    }
 
-    Token *start = type ? type : name_tok;
-    start->kind = TYPE;
-    Token *last = name_tok ? name_tok : type;
-    Span *span = span_merge(start->span, last->span);
-    AstNode *base = ast_new(p->nodes, span, last->next);
-    return ast_param(base, name_tok ? name_tok->lexeme : NULL, type);
+    expect_and_consume(p, PUNCT_COLON);
+
+    AstNode *type = parse_type(p);
+
+    AstNode *base = ast_new(p->nodes, NULL, NULL);
+    return ast_param(base, name, type);
 }
 
 static inline bool params_end(Parser *p) {
@@ -89,7 +95,7 @@ AstNode *parse_func_params(Parser *p, size_t *nparams) {
 
 AstNode *parse_func_stmt(Parser *p, bool public) {
     bool noreturn = false;
-    Token *type = NULL;
+    AstNode *type = NULL;
     Span *start = pconsume(p)->span;
     const char *name = pconsume(p)->lexeme;
 
@@ -105,12 +111,7 @@ AstNode *parse_func_stmt(Parser *p, bool public) {
     }
 
     expect_and_consume(p, PUNCT_ARROW);
-    if (!is_primitive_kind(current(p)->kind)) {
-        parser_error(p, current(p)->span, "expected a type identifier but got `%s'",
-                     token_kind_to_str(current(p)->kind));
-    } else {
-        type = pconsume(p);
-    }
+    type = parse_type(p);
 
 parse_body:;
     AstNode *body = parse_stmt(p);

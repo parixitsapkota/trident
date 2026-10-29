@@ -2,6 +2,7 @@
 
 #include "core/mem/mem.h"
 #include "syntax/token/token.h"
+#include <stdbool.h>
 
 AstNode *ast_new(Arena *arena, Span *span, Token *trivia) {
     AstNode *base = arena_alloc(arena, sizeof(AstNode));
@@ -76,10 +77,13 @@ AstNode *ast_stmt(AstNode *base, AstKind kind, AstNode *expr) {
     return base;
 }
 
-AstNode *ast_let(AstNode *base, AstNode *expr, Token *type) {
+AstNode *ast_let(AstNode *base, const char *name, AstNode *type, AstNode *expr,
+                 bool mutable) {
     base->kind = AST_LET;
-    base->as.let.expr = expr;
+    base->as.let.name = name;
     base->as.let.type = type;
+    base->as.let.expr = expr;
+    base->as.let.mutable = mutable;
     return base;
 }
 
@@ -105,9 +109,29 @@ AstNode *ast_block(AstNode *base, AstNode *stmts) {
     return base;
 }
 
+AstNode *ast_type(AstNode *base, Token *type) {
+    base->kind = AST_TYPE_NAME;
+    base->as.type_tok = type;
+    return base;
+}
+
+AstNode *ast_array(AstNode *base, AstNode *inner, AstNode *len) {
+    base->kind = AST_TYPE_ARRAY;
+    base->as.array.inner = inner;
+    base->as.array.len = len;
+    return base;
+}
+
+AstNode *ast_pointer(AstNode *base, AstKind kind, AstNode *inner, bool mutable) {
+    base->kind = kind;
+    base->as.pointer.inner = inner;
+    base->as.pointer.mutable = mutable;
+    return base;
+}
+
 AstNode *ast_function(AstNode *base, bool noreturn, bool public, const char *name,
                       AstNode *params, size_t nparams, AstNode *body,
-                      Token *return_type) {
+                      AstNode *return_type) {
     base->kind = AST_FUNCTION;
     base->as.func.noreturn = noreturn;
     base->as.func.public = public;
@@ -119,7 +143,7 @@ AstNode *ast_function(AstNode *base, bool noreturn, bool public, const char *nam
     return base;
 }
 
-AstNode *ast_param(AstNode *base, const char *name, Token *type) {
+AstNode *ast_param(AstNode *base, const char *name, AstNode *type) {
     base->kind = AST_PARAM;
     base->as.param.name = name;
     base->as.param.type = type;

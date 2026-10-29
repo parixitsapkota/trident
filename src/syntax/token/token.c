@@ -67,8 +67,7 @@ void print_token(const Token *tok) {
     case KW_F32:
     case KW_F64:
     case KW_F128:
-    case KW_STR:
-    case TYPE: fprintf(stderr, COL_TYPE "%s", text); break;
+    case KW_STR: fprintf(stderr, COL_TYPE "%s", text); break;
 
     case KW_IF:
     case KW_ELSE:
