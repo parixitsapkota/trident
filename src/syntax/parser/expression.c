@@ -19,22 +19,13 @@ static bool is_kind_literal(TokenKind kind) {
     }
 }
 
-static bool is_unary_op(TokenKind kind) {
-    switch (kind) {
-    case PUNCT_INC:
-    case PUNCT_DEC: return true;
-    default: return false;
-    }
-}
-
 static bool is_unary_prefix(TokenKind kind) {
     switch (kind) {
     case PUNCT_NOT:
     case PUNCT_ADD:
     case PUNCT_SUB:
-    case PUNCT_MUL:
     case PUNCT_BIT_AND: return true;
-    default: return is_unary_op(kind);
+    default: return false;
     }
 }
 
@@ -121,6 +112,8 @@ static AstNode *parse_subscript(Parser *p, AstNode *target) {
     return ast_index(base, target, index);
 }
 
+static AstNode *parse_unary(Parser *p);
+
 static AstNode *parse_postfix(Parser *p) {
     AstNode *expr = parse_primary(p);
     if (!expr) return NULL;
@@ -130,11 +123,17 @@ static AstNode *parse_postfix(Parser *p) {
 
         if (kind == PUNCT_O_BRACKET) {
             expr = parse_subscript(p, expr);
-        } else if (kind == PUNCT_INC || kind == PUNCT_DEC) {
+        } else if (kind == PUNCT_MUL) {
             Token *op = pconsume(p);
             Span *span = span_merge(expr->span, op->span);
             AstNode *base = ast_new(p->nodes, span, current(p));
             expr = ast_unary(base, op->kind, true, expr);
+        } else if (kind == PUNCT_DOT) {
+            Token *dot = pconsume(p);
+            AstNode *member = parse_unary(p);
+            Span *span = span_merge(expr->span, dot->span);
+            AstNode *base = ast_new(p->nodes, span, current(p));
+            expr = ast_member(base, expr, member);
         } else {
             break;
         }

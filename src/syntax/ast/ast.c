@@ -63,6 +63,13 @@ AstNode *ast_index(AstNode *base, AstNode *left, AstNode *index) {
     return base;
 }
 
+AstNode *ast_member(AstNode *base, AstNode *left, AstNode *member) {
+    base->kind = AST_MEMBER;
+    base->as.member.left = left;
+    base->as.member.member = member;
+    return base;
+}
+
 AstNode *ast_call(AstNode *base, const char *callee, AstNode *args, size_t argc) {
     base->kind = AST_CALL;
     base->as.call.callee = callee;

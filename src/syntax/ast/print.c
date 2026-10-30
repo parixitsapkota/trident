@@ -22,6 +22,7 @@ static const char *ast_kind_to_string(AstKind kind) {
         [AST_UNARY] = "UNARY",
         [AST_BINARY] = "BINARY",
         [AST_INDEX] = "INDEX",
+        [AST_MEMBER] = "MEMBER",
         [AST_CALL] = "CALL",
 
         /* statements */
@@ -100,7 +101,7 @@ static void print_node_label(const AstNode *node) {
 
     case AST_LET:
         printf(FGB_MAGENTA "%s:" FG_RED "%s" FG_GREEN " \"%s\" " RESET, kind,
-               node->as.let.mutable ? "" : " mut", node->as.let.name);
+               node->as.let.mutable ? " mut" : "", node->as.let.name);
         break;
 
     case AST_FUNCTION:
@@ -174,6 +175,11 @@ static Kids get_kids(const AstNode *n) {
     case AST_INDEX:
         kids_add(&k, n->as.index.left);
         kids_add(&k, n->as.index.index);
+        break;
+
+    case AST_MEMBER:
+        kids_add(&k, n->as.member.left);
+        kids_add(&k, n->as.member.member);
         break;
 
     case AST_CALL: kids_add(&k, n->as.call.args); break;

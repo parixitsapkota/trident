@@ -4,10 +4,11 @@
 struct Type {
     var : i32 = 10;
     union val {
-        i : i32;
-        f : f128;
+        i : *mut i32;
+        f : *mut f128;
     };
+    func get_var() -> i32 return var;
 };
 
 var : Type;
-var*var = 10; // TODO: member acess `.'
+var.val.i = &var;
