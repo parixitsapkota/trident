@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 #include "parser.h"
 
 #include "core/source/source.h"
@@ -17,6 +19,7 @@ struct Parser {
     AstNode *root;
     AstNode *tail;
     // error
+    bool expr_err;
     size_t errorc;
 };
 

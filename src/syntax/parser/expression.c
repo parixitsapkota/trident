@@ -206,7 +206,7 @@ static AstNode *parse_primary(Parser *p) {
     return parse_atom(p);
 }
 
-AstNode *parse_expr(Parser *p, Precedence prec) {
+static AstNode *parse_expr_(Parser *p, Precedence prec) {
     if (current(p)->kind == PUNCT_SEMICOLON) return NULL;
 
     Span *span_start = current(p)->span;
@@ -221,10 +221,10 @@ AstNode *parse_expr(Parser *p, Precedence prec) {
 
         if (is_expression_delimiter(tok->kind)) break;
         if (op_prec == PREC_UNKNOWN) {
-            // TODO: Make the error be reported once. This err reports multilple times as
-            //       the recursion unrolls.
+            if (p->expr_err) break;
             const char *got = token_kind_to_str(tok->last->kind);
             parser_error(p, tok->last->span, "expected `;` after `%s`", got);
+            p->expr_err = true;
             break;
         }
 
@@ -233,7 +233,7 @@ AstNode *parse_expr(Parser *p, Precedence prec) {
 
         bool assignment = is_proc_left_Associative(op_prec);
         Precedence next_prec = assignment ? op_prec + 1 : op_prec;
-        AstNode *right = parse_expr(p, next_prec);
+        AstNode *right = parse_expr_(p, next_prec);
         if (!right) break;
 
         Span *span_end = current(p)->span;
@@ -244,4 +244,11 @@ AstNode *parse_expr(Parser *p, Precedence prec) {
     }
 
     return left;
+}
+
+AstNode *parse_expr(Parser *p, Precedence prec) {
+    p->expr_err = false;
+    AstNode *node = parse_expr_(p, prec);
+    p->expr_err = false;
+    return node;
 }
