@@ -215,35 +215,33 @@ AstNode *parse_expr(Parser *p, Precedence prec) {
     AstNode *left = parse_unary(p);
     if (!left) return NULL;
 
-    while (current(p) != NULL) {
+    while (!is_kind(p, END_OF_TOKEN)) {
         Token *tok = current(p);
         TokenKind op = tok->kind;
         Precedence op_prec = get_op_prec(op);
 
         if (is_expression_delimiter(tok->kind)) break;
         if (op_prec == PREC_UNKNOWN) {
-            const char *got = token_kind_to_str(tok->kind);
-            parser_error(p, NULL, "expected `;` before `%s`", got);
-            op_prec = PREC_ADDITIVE;
-            op = PUNCT_ADD;
-            goto IF_FAKE_OP;
+            // TODO: Make the error be reported once. This err reports multilple times as
+            //       the recursion unrolls.
+            const char *got = token_kind_to_str(tok->last->kind);
+            parser_error(p, tok->last->span, "expected `;` after `%s`", got);
+            break;
         }
-        if (op_prec == PREC_NONE || op_prec < prec) break;
 
+        if (op_prec == PREC_NONE || op_prec < prec) break;
         pconsume(p);
-    IF_FAKE_OP: {
+
         bool assignment = is_proc_left_Associative(op_prec);
         Precedence next_prec = assignment ? op_prec + 1 : op_prec;
         AstNode *right = parse_expr(p, next_prec);
-
-        if (!right) return NULL;
+        if (!right) break;
 
         Span *span_end = current(p)->span;
         Span *span = span_merge(span_start, span_end);
 
         AstNode *base = ast_new(p->nodes, span, current(p));
         left = ast_binary(base, op, left, right);
-    }
     }
 
     return left;

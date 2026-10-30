@@ -94,7 +94,7 @@ static void print_node_label(const AstNode *node) {
         break;
 
     case AST_BINARY:
-        printf(FGB_CYAN "%s:" FGB_CYAN " : " FG_RED "`%s`" RESET, kind,
+        printf(FGB_CYAN "%s: " FG_YELLOW "op" FGB_CYAN " : " FG_RED "`%s`" RESET, kind,
                token_kind_to_str(node->as.binary.op));
         break;
 

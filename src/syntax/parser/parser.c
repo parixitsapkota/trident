@@ -56,7 +56,12 @@ AstNode *parse(Parser *p) {
 
     AstNode *base = ast_new(p->nodes, NULL, NULL);
     p->root = ast_stmt(base, AST_PROGRAM, chain.first);
-    if (p->errorc > 0) fatal("parser had %zu error(s).", p->errorc);
+    if (p->errorc > 0) {
+        putc('\n', stderr);
+        print_ast(p->root);
+        putc('\n', stderr);
+        fatal("parser had %zu error(s).", p->errorc);
+    }
     return p->root;
 }
 

@@ -87,7 +87,6 @@ void print_token(const Token *tok) {
     case KW_VOLATILE:
     case KW_CONST:
     case KW_MUT:
-    case KW_LET:
     case KW_FUNC: fprintf(stderr, COL_DECL "%s", text); break;
 
     case KW_TRUE:
