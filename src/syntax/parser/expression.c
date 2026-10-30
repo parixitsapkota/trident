@@ -24,6 +24,7 @@ static bool is_unary_prefix(TokenKind kind) {
     case PUNCT_NOT:
     case PUNCT_ADD:
     case PUNCT_SUB:
+    case PUNCT_MUL:
     case PUNCT_BIT_AND: return true;
     default: return false;
     }
@@ -123,17 +124,14 @@ static AstNode *parse_postfix(Parser *p) {
 
         if (kind == PUNCT_O_BRACKET) {
             expr = parse_subscript(p, expr);
-        } else if (kind == PUNCT_MUL) {
-            Token *op = pconsume(p);
-            Span *span = span_merge(expr->span, op->span);
-            AstNode *base = ast_new(p->nodes, span, current(p));
-            expr = ast_unary(base, op->kind, true, expr);
-        } else if (kind == PUNCT_DOT) {
-            Token *dot = pconsume(p);
+        } else if (kind == PUNCT_DOT || kind == PUNCT_ARROW) {
+            Token *acess = pconsume(p);
             AstNode *member = parse_unary(p);
-            Span *span = span_merge(expr->span, dot->span);
+            Span *span = span_merge(expr->span, acess->span);
             AstNode *base = ast_new(p->nodes, span, current(p));
-            expr = ast_member(base, expr, member);
+            expr =
+                ast_member(base, acess->kind == PUNCT_DOT ? AST_MEMBER : AST_DREF_MEMBER,
+                           expr, member);
         } else {
             break;
         }

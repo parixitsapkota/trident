@@ -45,7 +45,6 @@ typedef struct {
 Token *current(Parser *p);
 Token *next(Parser *p);
 Token *pconsume(Parser *p);
-bool expect(Parser *p, TokenKind kind);
 Token *expect_and_consume(Parser *p, TokenKind kind);
 bool is_kind(Parser *p, TokenKind kind);
 

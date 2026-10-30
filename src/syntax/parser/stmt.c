@@ -101,7 +101,7 @@ AstNode *parse_func_stmt(Parser *p, bool public) {
         pconsume(p);
         noreturn = true;
     } else {
-        expect_and_consume(p, PUNCT_ARROW);
+        expect_and_consume(p, PUNCT_COLON);
         type = parse_type(p);
     }
 

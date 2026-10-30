@@ -63,8 +63,8 @@ AstNode *ast_index(AstNode *base, AstNode *left, AstNode *index) {
     return base;
 }
 
-AstNode *ast_member(AstNode *base, AstNode *left, AstNode *member) {
-    base->kind = AST_MEMBER;
+AstNode *ast_member(AstNode *base, AstKind kind, AstNode *left, AstNode *member) {
+    base->kind = kind;
     base->as.member.left = left;
     base->as.member.member = member;
     return base;
