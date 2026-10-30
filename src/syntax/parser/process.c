@@ -19,25 +19,10 @@ Token *pconsume(Parser *p) {
     return c;
 }
 
-bool expect(Parser *p, TokenKind kind) {
-    Token *tok = current(p);
-
-    if (!tok || tok->kind != kind) {
-        ++p->errorc;
-        const char *got =
-            tok ? (tok->lexeme ? tok->lexeme : token_kind_to_str(tok->kind)) : "EOF";
-        diag_err(p->src, tok ? tok->span : NULL, true, "expected `%s`, but found `%s`",
-                 token_kind_to_str(kind), got);
-        return false;
-    }
-
-    return true;
-}
-
-// TODO: seprate expect_and_consume from pconsume_if;
 Token *expect_and_consume(Parser *p, TokenKind kind) {
     if (!is_kind(p, kind)) {
-        return NULL;
+        return parser_error(p, NULL, "expected a `%s` before `%s`",
+                            token_kind_to_str(kind), token_kind_to_str(current(p)->kind));
     }
     return pconsume(p);
 }

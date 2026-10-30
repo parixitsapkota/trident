@@ -25,6 +25,7 @@ typedef enum {
     AST_BINARY,
     AST_INDEX,
     AST_MEMBER,
+    AST_DREF_MEMBER,
     AST_CALL,
 
     /* statements */
@@ -188,7 +189,7 @@ AstNode *ast_string_val(AstNode *base, const char *str);
 AstNode *ast_unary(AstNode *base, TokenKind op, bool postfix, AstNode *operand);
 AstNode *ast_binary(AstNode *base, TokenKind op, AstNode *left, AstNode *right);
 AstNode *ast_index(AstNode *base, AstNode *left, AstNode *index);
-AstNode *ast_member(AstNode *base, AstNode *left, AstNode *member);
+AstNode *ast_member(AstNode *base, AstKind kind, AstNode *left, AstNode *member);
 AstNode *ast_call(AstNode *base, const char *callee, AstNode *args, size_t argc);
 
 AstNode *ast_stmt(AstNode *base, AstKind kind, AstNode *expr);
