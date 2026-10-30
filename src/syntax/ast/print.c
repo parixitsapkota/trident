@@ -48,6 +48,9 @@ static const char *ast_kind_to_string(AstKind kind) {
         [AST_TYPE_POINTER] = "TYPE_POINTER",
         [AST_TYPE_SLICE] = "TYPE_SLICE",
         [AST_TYPE_ARRAY] = "TYPE_ARRAY",
+
+        [AST_STRUCT] = "STRUCT",
+        [AST_UNION] = "UNION",
     };
 
     size_t count = sizeof(names) / sizeof(names[0]);
@@ -127,6 +130,11 @@ static void print_node_label(const AstNode *node) {
                node->as.pointer.mutable ? "mut" : "const");
         break;
 
+    case AST_UNION:
+    case AST_STRUCT:
+        printf(FG_RED "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.structure.name);
+        break;
+
     default: printf(FG_RED "%s:" RESET, kind); break;
     }
     putchar('\n');
@@ -171,8 +179,7 @@ static Kids get_kids(const AstNode *n) {
     case AST_CALL: kids_add(&k, n->as.call.args); break;
 
     case AST_PROGRAM:
-    case AST_BLOCK: kids_add(&k, n->as.block.stmts); break;
-
+    case AST_BLOCK:
     case AST_EXPR_STMT:
     case AST_CONTINUE:
     case AST_BREAK:
@@ -192,6 +199,9 @@ static Kids get_kids(const AstNode *n) {
 
     case AST_TYPE_POINTER:
     case AST_TYPE_SLICE: kids_add(&k, n->as.pointer.inner); break;
+
+    case AST_UNION:
+    case AST_STRUCT: kids_add(&k, n->as.structure.body); break;
 
     case AST_FUNCTION:
         kids_add(&k, n->as.func.return_type);

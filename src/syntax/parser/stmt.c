@@ -10,30 +10,23 @@
 #include "syntax/parser/process.h"
 #include "syntax/token/token.h"
 
-AstNode *parse_let_stmt(Parser *p) {
-    Token *let_tok = pconsume(p); // `let'
-
-    bool mutable = parse_constness(p);
-
+AstNode *parse_decl_stmt(Parser *p, bool mutable) {
+    Token *first_tok = current(p);
     const char *name = expect_and_consume(p, IDENTIFIER_LIT)->lexeme;
-    if (!name) return NULL;
-
-    if (!expect_and_consume(p, PUNCT_COLON)) return NULL;
+    expect_and_consume(p, PUNCT_COLON);
 
     AstNode *type = parse_type(p);
-    if (!type) return NULL;
 
     AstNode *expr = NULL;
     if (is_kind(p, PUNCT_ASSIGN)) {
         pconsume(p); // `='
         expr = parse_expr(p, PREC_NONE);
+        expect_and_consume(p, PUNCT_SEMICOLON);
         if (!expr) return NULL;
     }
 
-    Token *semi = expect_and_consume(p, PUNCT_SEMICOLON);
-
-    Span *span = span_merge(let_tok->span, semi ? semi->span : let_tok->span);
-    AstNode *base = ast_new(p->nodes, span, let_tok);
+    Span *span = span_merge(first_tok->span, current(p)->last->span);
+    AstNode *base = ast_new(p->nodes, span, first_tok);
     return ast_let(base, name, type, expr, mutable);
 }
 
@@ -46,6 +39,7 @@ AstNode *parse_expr_stmt(Parser *p, AstKind kind) {
 }
 
 AstNode *parse_func_param(Parser *p) {
+    Token *start = current(p);
     const char *name = NULL;
     if (is_kind(p, IDENTIFIER_LIT)) name = pconsume(p)->lexeme;
     if (!name)
@@ -55,8 +49,8 @@ AstNode *parse_func_param(Parser *p) {
     expect_and_consume(p, PUNCT_COLON);
 
     AstNode *type = parse_type(p);
-
-    AstNode *base = ast_new(p->nodes, NULL, NULL);
+    Span *span = span_merge(start->span, current(p)->span);
+    AstNode *base = ast_new(p->nodes, span, start);
     return ast_param(base, name, type);
 }
 
@@ -132,4 +126,16 @@ AstNode *parse_block_stmt(Parser *p) {
     Span *span = span_merge(start, current(p)->span);
     AstNode *base = ast_new(p->nodes, span, current(p));
     return ast_stmt(base, AST_BLOCK, stmts.first);
+}
+
+AstNode *parse_structure_stmt(Parser *p, AstKind kind) {
+    Span *start = pconsume(p)->span;
+
+    const char *name = expect_and_consume(p, IDENTIFIER_LIT)->lexeme;
+    AstNode *body = parse_any(p);
+    expect_and_consume(p, PUNCT_SEMICOLON);
+
+    Span *span = span_merge(start, current(p)->span);
+    AstNode *base = ast_new(p->nodes, span, current(p));
+    return ast_structure(base, kind, name, body);
 }

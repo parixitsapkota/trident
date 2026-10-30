@@ -50,6 +50,9 @@ typedef enum {
     AST_TYPE_POINTER,
     AST_TYPE_SLICE,
     AST_TYPE_ARRAY,
+
+    AST_STRUCT,
+    AST_UNION,
 } AstKind;
 
 struct AstNode {
@@ -114,14 +117,16 @@ struct AstNode {
         } call;
 
         /* AST_BLOCK: stmts is a linked list */
-        struct {
-            AstNode *stmts;
-        } block;
-
         /* AST_EXPR_STMT, AST_RETURN, AST_ELSE, AST_LOOP */
         struct {
             AstNode *expr;
         } stmt;
+
+        /* AST_STRUCT, AST_UNION */
+        struct {
+            const char *name;
+            AstNode *body;
+        } structure;
 
         /* AST_LET */
         struct {
@@ -184,7 +189,7 @@ AstNode *ast_let(AstNode *base, const char *name, AstNode *type, AstNode *expr,
 AstNode *ast_cond(AstNode *base, AstKind kind, AstNode *cond, AstNode *then_b,
                   AstNode *else_b);
 AstNode *ast_ctl(AstNode *base, AstKind kind, AstNode *cond, AstNode *body);
-AstNode *ast_block(AstNode *base, AstNode *stmts);
+AstNode *ast_structure(AstNode *base, AstKind kind, const char *name, AstNode *body);
 
 AstNode *ast_type(AstNode *base, Token *type);
 AstNode *ast_array(AstNode *base, AstNode *inner, AstNode *len);

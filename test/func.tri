@@ -4,7 +4,7 @@
 func add(a : * i32, b : * i32) -> i32 return *a + *b;
 
 func main() -> i32 {
-    let a : i32 = 34;
-    let b : i32 = 35;
+    a : i32 = 34;
+    b : i32 = 35;
     return add(&a, &b);
 }

@@ -3,7 +3,11 @@
 
 struct Type {
     var : i32 = 10;
+    union val {
+        i : i32;
+        f : f128;
+    };
 };
 
-let var : Type;
-var.var = 10;
+var : Type;
+var*var = 10; // TODO: member acess `.'

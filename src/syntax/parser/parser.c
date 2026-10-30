@@ -20,14 +20,23 @@ Parser *init_parser(Source *src, Token *tokens) {
 }
 
 AstNode *parse_any(Parser *p) {
+    bool mutable = parse_constness(p);
     switch (current(p)->kind) {
     case PUNCT_SEMICOLON: pconsume(p); return NULL;
     case PUNCT_O_BRACE: return parse_block_stmt(p);
-    case KW_LET: return parse_let_stmt(p);
+    case KW_STRUCT: return parse_structure_stmt(p, AST_STRUCT);
+    case KW_UNION: return parse_structure_stmt(p, AST_UNION);
     case KW_FUNC: return parse_func_stmt(p, false);
     case KW_RETURN: return parse_expr_stmt(p, AST_RETURN);
     case KW_BREAK: return parse_expr_stmt(p, AST_BREAK);
     case KW_CONTINUE: return parse_expr_stmt(p, AST_CONTINUE);
+    case IDENTIFIER_LIT:
+        if (current(p)->next) {
+            if (current(p)->next->kind == PUNCT_COLON) {
+                return parse_decl_stmt(p, mutable);
+            }
+        }
+        [[fallthrough]];
     default: {
         AstNode *expr = parse_expr(p, PREC_NONE);
         expect_and_consume(p, PUNCT_SEMICOLON);

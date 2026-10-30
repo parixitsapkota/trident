@@ -103,9 +103,10 @@ AstNode *ast_ctl(AstNode *base, AstKind kind, AstNode *cond, AstNode *body) {
     return base;
 }
 
-AstNode *ast_block(AstNode *base, AstNode *stmts) {
-    base->kind = AST_BLOCK;
-    base->as.block.stmts = stmts;
+AstNode *ast_structure(AstNode *base, AstKind kind, const char *name, AstNode *body) {
+    base->kind = kind;
+    base->as.structure.name = name;
+    base->as.structure.body = body;
     return base;
 }
 
