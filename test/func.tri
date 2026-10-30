@@ -1,9 +1,9 @@
 // This is a test example
 // This code may not compile.
 
-func add(a : * i32, b : * i32) -> i32 return *a + *b;
+func add(a : * i32, b : * i32) : i32 return *a + *b;
 
-func main() -> i32 {
+func main() : i32 {
     a : i32 = 34;
     b : i32 = 35;
     return add(&a, &b);
