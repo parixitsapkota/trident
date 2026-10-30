@@ -23,6 +23,7 @@ static const char *ast_kind_to_string(AstKind kind) {
         [AST_BINARY] = "BINARY",
         [AST_INDEX] = "INDEX",
         [AST_MEMBER] = "MEMBER",
+        [AST_DREF_MEMBER] = "DREF_MEMBER",
         [AST_CALL] = "CALL",
 
         /* statements */
@@ -178,6 +179,7 @@ static Kids get_kids(const AstNode *n) {
         break;
 
     case AST_MEMBER:
+    case AST_DREF_MEMBER:
         kids_add(&k, n->as.member.left);
         kids_add(&k, n->as.member.member);
         break;
