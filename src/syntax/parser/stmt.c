@@ -162,3 +162,20 @@ AstNode *parse_if_stmt(Parser *p) {
     AstNode *base = ast_new(p->nodes, span, if_start);
     return ast_cond(base, AST_IF, cond, then_b, chain);
 }
+
+AstNode *parse_while_stmt(Parser *p) {
+    Token *while_start = pconsume(p);
+    AstNode *cond = parse_paren_expr(p);
+    AstNode *then_b = parse_any(p);
+    Span *span = span_merge(while_start->span, current(p)->span);
+    AstNode *base = ast_new(p->nodes, span, while_start);
+    return ast_ctl(base, AST_WHILE, cond, then_b);
+}
+
+AstNode *parse_loop_stmt(Parser *p) {
+    Token *loop_start = pconsume(p);
+    AstNode *body = parse_any(p);
+    Span *span = span_merge(loop_start->span, current(p)->span);
+    AstNode *base = ast_new(p->nodes, span, loop_start);
+    return ast_stmt(base, AST_LOOP, body);
+}
