@@ -103,14 +103,10 @@ AstNode *parse_paren_expr(Parser *p) {
 }
 
 static AstNode *parse_subscript(Parser *p, AstNode *target) {
-    pconsume(p);
+    Token *start = pconsume(p);
     AstNode *index = parse_expr(p, PREC_NONE);
-
-    Span *span = span_merge(target->span, current(p)->span);
     expect_and_consume(p, PUNCT_C_BRACKET);
-
-    AstNode *base = ast_new(p->nodes, span, current(p));
-    return ast_index(base, target, index);
+    return ast_index(base(p, start), target, index);
 }
 
 static AstNode *parse_unary(Parser *p);
@@ -142,21 +138,17 @@ static AstNode *parse_postfix(Parser *p) {
 static AstNode *parse_unary(Parser *p) {
     if (is_unary_prefix(current(p)->kind)) {
         Token *tok = pconsume(p);
-        Span *op_span = tok->span;
         TokenKind op = tok->kind;
 
         AstNode *operand = parse_unary(p);
         if (!operand) return NULL;
-
-        Span *span = span_merge(op_span, operand->span);
-        AstNode *base = ast_new(p->nodes, span, current(p));
-        return ast_unary(base, op, false, operand);
+        return ast_unary(base(p, tok), op, false, operand);
     }
     return parse_postfix(p);
 }
 
 static AstNode *parse_compound_struct(Parser *p, bool anonymous) {
-    Token *first_tok = pconsume(p);
+    Token *start = pconsume(p);
 
     expect_and_consume(p, PUNCT_O_BRACE);
     NodeChain assignees = {0};
@@ -166,14 +158,12 @@ static AstNode *parse_compound_struct(Parser *p, bool anonymous) {
     }
     expect_and_consume(p, PUNCT_C_BRACE);
 
-    Span *span = span_merge(first_tok->span, current(p)->last->span);
-    AstNode *base = ast_new(p->nodes, span, first_tok);
-    return ast_compound(base, first_tok->lexeme, assignees.first, anonymous);
+    return ast_compound(base(p, start), start->lexeme, assignees.first, anonymous);
 }
 
 AstNode *parse_call(Parser *p) {
-    Token *tok = pconsume(p);
-    const char *name = tok->lexeme;
+    Token *start = pconsume(p);
+    const char *name = start->lexeme;
     expect_and_consume(p, PUNCT_O_PREN);
 
     size_t argc = 0;
@@ -201,11 +191,8 @@ AstNode *parse_call(Parser *p) {
             break;
         }
     }
-    Span *span = span_merge(tok->span, current(p)->span);
     expect_and_consume(p, PUNCT_C_PREN);
-
-    AstNode *base = ast_new(p->nodes, span, current(p));
-    return ast_call(base, name, first_arg, argc);
+    return ast_call(base(p, start), name, first_arg, argc);
 }
 
 static AstNode *parse_primary(Parser *p) {
@@ -230,7 +217,7 @@ static AstNode *parse_primary(Parser *p) {
 static AstNode *parse_expr_(Parser *p, Precedence prec) {
     if (current(p)->kind == PUNCT_SEMICOLON) return NULL;
 
-    Span *span_start = current(p)->span;
+    Token *start = current(p);
 
     AstNode *left = parse_unary(p);
     if (!left) return NULL;
@@ -257,11 +244,7 @@ static AstNode *parse_expr_(Parser *p, Precedence prec) {
         AstNode *right = parse_expr_(p, next_prec);
         if (!right) break;
 
-        Span *span_end = current(p)->span;
-        Span *span = span_merge(span_start, span_end);
-
-        AstNode *base = ast_new(p->nodes, span, current(p));
-        left = ast_binary(base, op, left, right);
+        left = ast_binary(base(p, start), op, left, right);
     }
 
     return left;

@@ -11,7 +11,7 @@
 #include "syntax/token/token.h"
 
 AstNode *parse_decl_stmt(Parser *p, bool mutable) {
-    Token *first_tok = current(p);
+    Token *start = current(p);
     const char *name = expect_and_consume(p, IDENTIFIER_LIT)->lexeme;
     expect_and_consume(p, PUNCT_COLON);
 
@@ -24,10 +24,7 @@ AstNode *parse_decl_stmt(Parser *p, bool mutable) {
         expect_and_consume(p, PUNCT_SEMICOLON);
         if (!expr) return NULL;
     }
-
-    Span *span = span_merge(first_tok->span, current(p)->last->span);
-    AstNode *base = ast_new(p->nodes, span, first_tok);
-    return ast_let(base, name, type, expr, mutable);
+    return ast_let(base(p, start), name, type, expr, mutable);
 }
 
 AstNode *parse_expr_stmt(Parser *p, AstKind kind) {
@@ -35,9 +32,7 @@ AstNode *parse_expr_stmt(Parser *p, AstKind kind) {
     AstNode *expr = NULL;
     if (!is_kind(p, PUNCT_SEMICOLON)) expr = parse_expr(p, PREC_NONE);
     expect_and_consume(p, PUNCT_SEMICOLON);
-    Span *span = span_merge(start->span, current(p)->span);
-    AstNode *base = ast_new(p->nodes, span, current(p));
-    return ast_stmt(base, kind, expr);
+    return ast_stmt(base(p, start), kind, expr);
 }
 
 AstNode *parse_func_param(Parser *p) {
@@ -51,9 +46,7 @@ AstNode *parse_func_param(Parser *p) {
     expect_and_consume(p, PUNCT_COLON);
 
     AstNode *type = parse_type(p);
-    Span *span = span_merge(start->span, current(p)->span);
-    AstNode *base = ast_new(p->nodes, span, start);
-    return ast_param(base, name, type);
+    return ast_param(base(p, start), name, type);
 }
 
 static inline bool params_end(Parser *p) {
@@ -91,7 +84,7 @@ AstNode *parse_func_params(Parser *p, size_t *nparams) {
 AstNode *parse_func_stmt(Parser *p, bool public) {
     bool noreturn = false;
     AstNode *type = NULL;
-    Span *start = pconsume(p)->span;
+    Token *start = pconsume(p);
     const char *name = pconsume(p)->lexeme;
 
     expect_and_consume(p, PUNCT_O_PREN);
@@ -108,13 +101,12 @@ AstNode *parse_func_stmt(Parser *p, bool public) {
     }
 
     AstNode *body = parse_any(p);
-    Span *span = span_merge(start, current(p)->span);
-    AstNode *base = ast_new(p->nodes, span, current(p));
-    return ast_function(base, noreturn, public, name, params, nparams, body, type);
+    return ast_function(base(p, start), noreturn, public, name, params, nparams, body,
+                        type);
 }
 
 AstNode *parse_block_stmt(Parser *p) {
-    Span *start = pconsume(p)->span;
+    Token *start = pconsume(p);
 
     NodeChain stmts = {0};
     while (current(p) && current(p)->kind != PUNCT_C_BRACE) {
@@ -125,33 +117,27 @@ AstNode *parse_block_stmt(Parser *p) {
     }
     expect_and_consume(p, PUNCT_C_BRACE);
 
-    Span *span = span_merge(start, current(p)->span);
-    AstNode *base = ast_new(p->nodes, span, current(p));
-    return ast_stmt(base, AST_BLOCK, stmts.first);
+    return ast_stmt(base(p, start), AST_BLOCK, stmts.first);
 }
 
 AstNode *parse_structure_stmt(Parser *p, AstKind kind) {
-    Span *start = pconsume(p)->span;
+    Token *start = pconsume(p);
 
     const char *name = expect_and_consume(p, IDENTIFIER_LIT)->lexeme;
     AstNode *body = parse_any(p);
     expect_and_consume(p, PUNCT_SEMICOLON);
 
-    Span *span = span_merge(start, current(p)->span);
-    AstNode *base = ast_new(p->nodes, span, current(p));
-    return ast_type_structure(base, kind, name, body);
+    return ast_type_structure(base(p, start), kind, name, body);
 }
 
 AstNode *parse_type_stmt(Parser *p) {
-    Span *start = pconsume(p)->span;
+    Token *start = pconsume(p);
 
     Token *name_tok = expect_and_consume(p, IDENTIFIER_LIT);
     AstNode *type = parse_type(p);
     expect_and_consume(p, PUNCT_SEMICOLON);
 
-    Span *span = span_merge(start, current(p)->span);
-    AstNode *base = ast_new(p->nodes, span, current(p));
-    return ast_type_stmt(base, name_tok ? name_tok->lexeme : NULL, type);
+    return ast_type_stmt(base(p, start), name_tok ? name_tok->lexeme : NULL, type);
 }
 
 AstNode *parse_if_stmt(Parser *p) {
@@ -167,14 +153,10 @@ AstNode *parse_if_stmt(Parser *p) {
             chain->kind = AST_ELSE_IF;
         } else {
             AstNode *else_body = parse_any(p);
-            Span *span = span_merge(else_start->span, current(p)->span);
-            AstNode *base = ast_new(p->nodes, span, else_start);
-            chain = ast_stmt(base, AST_ELSE, else_body);
+            chain = ast_stmt(base(p, else_start), AST_ELSE, else_body);
         }
     }
-    Span *span = span_merge(if_start->span, current(p)->span);
-    AstNode *base = ast_new(p->nodes, span, if_start);
-    return ast_cond(base, AST_IF, cond, then_b, chain);
+    return ast_cond(base(p, if_start), AST_IF, cond, then_b, chain);
 }
 
 AstNode *parse_while_stmt(Parser *p) {
@@ -190,25 +172,16 @@ AstNode *parse_while_stmt(Parser *p) {
         AstNode *base = ast_new(p->nodes, span, else_start);
         chain = ast_stmt(base, AST_ELSE, else_body);
     }
-
-    Span *span = span_merge(while_start->span, current(p)->span);
-    AstNode *base = ast_new(p->nodes, span, while_start);
-    return ast_cond(base, AST_WHILE, cond, then_b, chain);
+    return ast_cond(base(p, while_start), AST_WHILE, cond, then_b, chain);
 }
 
 AstNode *parse_loop_stmt(Parser *p) {
     Token *loop_start = pconsume(p);
     AstNode *body = parse_any(p);
-
     if (is_kind(p, KW_WHILE)) {
         Token *while_start = pconsume(p);
         AstNode *cond = parse_paren_expr(p);
-        Span *span = span_merge(while_start->span, current(p)->span);
-        AstNode *base = ast_new(p->nodes, span, loop_start);
-        return ast_ctl(base, AST_LOOP_WHILE, cond, body);
+        return ast_ctl(base(p, while_start), AST_LOOP_WHILE, cond, body);
     }
-
-    Span *span = span_merge(loop_start->span, current(p)->span);
-    AstNode *base = ast_new(p->nodes, span, loop_start);
-    return ast_stmt(base, AST_LOOP, body);
+    return ast_stmt(base(p, loop_start), AST_LOOP, body);
 }

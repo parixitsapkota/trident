@@ -50,6 +50,7 @@ AstNode *parse_any(Parser *p) {
 }
 
 AstNode *parse(Parser *p) {
+    Token *start = current(p);
     NodeChain chain = {0};
 
     for (;;) {
@@ -58,8 +59,7 @@ AstNode *parse(Parser *p) {
         if (node != NULL) chain_append(&chain, node);
     }
 
-    AstNode *base = ast_new(p->nodes, NULL, NULL);
-    p->root = ast_stmt(base, AST_PROGRAM, chain.first);
+    p->root = ast_stmt(base(p, start), AST_PROGRAM, chain.first);
     if (p->errorc > 0) {
         putc('\n', stderr);
         print_ast(p->root);

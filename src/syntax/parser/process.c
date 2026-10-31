@@ -62,3 +62,8 @@ void chain_append(NodeChain *c, AstNode *head) {
     while (c->last->next)
         c->last = c->last->next;
 }
+
+AstNode *base(Parser *p, Token *first) {
+    Span *span = span_merge(first->span, current(p)->last->span);
+    return ast_new(p->nodes, span, first);
+}
