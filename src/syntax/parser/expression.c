@@ -155,6 +155,22 @@ static AstNode *parse_unary(Parser *p) {
     return parse_postfix(p);
 }
 
+static AstNode *parse_compound_struct(Parser *p, bool anonymous) {
+    Token *first_tok = pconsume(p);
+
+    expect_and_consume(p, PUNCT_O_BRACE);
+    NodeChain assignees = {0};
+    while (!is_kind(p, PUNCT_C_BRACE)) {
+        chain_append(&assignees, parse_expr(p, PREC_NONE));
+        if (is_kind(p, PUNCT_COMMA)) pconsume(p);
+    }
+    expect_and_consume(p, PUNCT_C_BRACE);
+
+    Span *span = span_merge(first_tok->span, current(p)->last->span);
+    AstNode *base = ast_new(p->nodes, span, first_tok);
+    return ast_compound(base, first_tok->lexeme, assignees.first, anonymous);
+}
+
 AstNode *parse_call(Parser *p) {
     Token *tok = pconsume(p);
     const char *name = tok->lexeme;
@@ -197,6 +213,12 @@ static AstNode *parse_primary(Parser *p) {
 
     if (kind == IDENTIFIER_LIT && next(p) && next(p)->kind == PUNCT_O_PREN)
         return parse_call(p);
+
+    if (kind == IDENTIFIER_LIT && next(p) && next(p)->kind == PUNCT_O_BRACE)
+        return parse_compound_struct(p, false);
+
+    if (kind == PUNCT_DOT && next(p) && next(p)->kind == PUNCT_O_BRACE)
+        return parse_compound_struct(p, true);
 
     if (kind == PUNCT_O_PREN) return parse_paren_expr(p);
 
