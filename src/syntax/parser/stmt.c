@@ -32,7 +32,9 @@ AstNode *parse_decl_stmt(Parser *p, bool mutable) {
 
 AstNode *parse_expr_stmt(Parser *p, AstKind kind) {
     Token *start = pconsume(p);
-    AstNode *expr = parse_expr(p, PREC_NONE);
+    AstNode *expr = NULL;
+    if (!is_kind(p, PUNCT_SEMICOLON)) expr = parse_expr(p, PREC_NONE);
+    expect_and_consume(p, PUNCT_SEMICOLON);
     Span *span = span_merge(start->span, current(p)->span);
     AstNode *base = ast_new(p->nodes, span, current(p));
     return ast_stmt(base, kind, expr);
