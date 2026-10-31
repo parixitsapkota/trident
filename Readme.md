@@ -9,9 +9,9 @@
 
 <div align="center">
   <p>
-    <img alt="License" src="https://img.shields.io/github/license/parixitsapkota/trident?style=for-the-badge&color=00b894">
-    <img alt="top language" src="https://img.shields.io/github/languages/top/parixitsapkota/trident?style=for-the-badge&color=0984e3">
-    <img alt="last commit" src="https://img.shields.io/github/last-commit/parixitsapkota/trident?style=for-the-badge&color=e17055">
+    <img alt="License" src="https://img.shields.io/github/license/tridentlang/tridentlang?style=for-the-badge&color=00b894">
+    <img alt="top language" src="https://img.shields.io/github/languages/top/tridentlang/tridentlang?style=for-the-badge&color=0984e3">
+    <img alt="last commit" src="https://img.shields.io/github/last-commit/tridentlang/tridentlang?style=for-the-badge&color=e17055">
     <img alt="Repo stars" src="https://img.shields.io/github/stars/parixitsapkota/parixitsapkota?style=for-the-badge&color=fdcb6e">
   </p>
 </div>
