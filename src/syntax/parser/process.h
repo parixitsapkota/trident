@@ -58,6 +58,7 @@ void *parser_error(Parser *p, Span *span, const char *fmt, ...)
 AstNode *parse_any(Parser *p);
 
 AstNode *parse_expr(Parser *p, Precedence prec);
+AstNode *parse_paren_expr(Parser *p);
 
 bool parse_constness(Parser *p);
 AstNode *parse_type(Parser *p);
@@ -70,3 +71,4 @@ AstNode *parse_func_stmt(Parser *p, bool public);
 AstNode *parse_block_stmt(Parser *p);
 
 AstNode *parse_structure_stmt(Parser *p, AstKind kind);
+AstNode *parse_if_stmt(Parser *p);

@@ -101,7 +101,7 @@ AstNode *parse_func_stmt(Parser *p, bool public) {
         pconsume(p);
         noreturn = true;
     } else {
-        expect_and_consume(p, PUNCT_COLON);
+        expect_and_consume(p, PUNCT_ARROW);
         type = parse_type(p);
     }
 
@@ -138,4 +138,27 @@ AstNode *parse_structure_stmt(Parser *p, AstKind kind) {
     Span *span = span_merge(start, current(p)->span);
     AstNode *base = ast_new(p->nodes, span, current(p));
     return ast_structure(base, kind, name, body);
+}
+
+AstNode *parse_if_stmt(Parser *p) {
+    Token *if_start = pconsume(p);
+    AstNode *cond = parse_paren_expr(p);
+    AstNode *then_b = parse_any(p);
+
+    AstNode *chain = NULL;
+    if (is_kind(p, KW_ELSE)) {
+        Token *else_start = pconsume(p);
+        if (is_kind(p, KW_IF)) {
+            chain = parse_if_stmt(p);
+            chain->kind = AST_ELSE_IF;
+        } else {
+            AstNode *else_body = parse_any(p);
+            Span *span = span_merge(else_start->span, current(p)->span);
+            AstNode *base = ast_new(p->nodes, span, else_start);
+            chain = ast_stmt(base, AST_ELSE, else_body);
+        }
+    }
+    Span *span = span_merge(if_start->span, current(p)->span);
+    AstNode *base = ast_new(p->nodes, span, if_start);
+    return ast_cond(base, AST_IF, cond, then_b, chain);
 }

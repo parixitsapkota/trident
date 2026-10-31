@@ -162,6 +162,7 @@ static Kids get_kids(const AstNode *n) {
         break;
 
     case AST_IF:
+    case AST_ELSE_IF:
         kids_add(&k, n->as.cond.cond);
         kids_add(&k, n->as.cond.then_b);
         kids_add(&k, n->as.cond.else_b);
