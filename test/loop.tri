@@ -1,11 +1,11 @@
 //@module example::math;
 
 struct Accumulator {
-    value: i32,
-    steps: i32,
-}
+    value: i32;
+    steps: i32;
+};
 
-// type OpFunc func(* i32, * i32) -> i32;
+type OpFunc func(* i32, * i32) -> i32;
 
 func add(a: * i32, b: * i32) -> i32 {
     return *a + *b;
@@ -16,7 +16,7 @@ func compute(op: OpFunc, a: * i32, b: * i32) -> i32 {
 }
 
 func run_calculation(max_val: i32) -> i32 {
-    acc: Accumulator = Accumulator{value: 0, steps: 0};
+    acc: Accumulator = Accumulator{value = 0, steps = 0};
     acc_ptr: * Accumulator = &acc;
 
     i: i32 = 1;

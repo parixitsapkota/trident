@@ -27,6 +27,7 @@ typedef enum {
     AST_MEMBER,
     AST_DREF_MEMBER,
     AST_CALL,
+    AST_COMPOUND,
 
     /* statements */
     AST_BLOCK,
@@ -55,7 +56,6 @@ typedef enum {
     AST_TYPE_SLICE,
     AST_TYPE_ARRAY,
     AST_TYPE_FUNC,
-
     AST_STRUCT,
     AST_UNION,
 } AstKind;
@@ -167,6 +167,13 @@ struct AstNode {
         /* AST_TYPE_NAME */
         Token *type_tok;
 
+        /* AST_COMPOUND */
+        struct {
+            const char *name;
+            AstNode *assignees;
+            bool anonymous;
+        } compound;
+
         /* AST_TYPE_ARRAY */
         struct {
             AstNode *inner;
@@ -206,6 +213,8 @@ AstNode *ast_binary(AstNode *base, TokenKind op, AstNode *left, AstNode *right);
 AstNode *ast_index(AstNode *base, AstNode *left, AstNode *index);
 AstNode *ast_member(AstNode *base, AstKind kind, AstNode *left, AstNode *member);
 AstNode *ast_call(AstNode *base, const char *callee, AstNode *args, size_t argc);
+AstNode *ast_compound(AstNode *base, const char *name, AstNode *assignees,
+                      bool anonymous);
 
 AstNode *ast_stmt(AstNode *base, AstKind kind, AstNode *expr);
 AstNode *ast_let(AstNode *base, const char *name, AstNode *type, AstNode *expr,

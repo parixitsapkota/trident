@@ -43,6 +43,7 @@ bool is_expression_delimiter(TokenKind kind) {
     case PUNCT_COMMA:
     case PUNCT_C_PREN:
     case PUNCT_C_BRACKET:
+    case PUNCT_C_BRACE:
     case PUNCT_COLON:
     case PUNCT_SEMICOLON: return true;
 
