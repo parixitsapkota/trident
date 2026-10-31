@@ -36,6 +36,7 @@ typedef enum {
     AST_ELSE,
     AST_LOOP,
     AST_WHILE,
+    AST_LOOP_WHILE,
     AST_MATCH,
     AST_CASE,
     AST_BREAK,

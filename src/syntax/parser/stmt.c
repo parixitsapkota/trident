@@ -167,14 +167,33 @@ AstNode *parse_while_stmt(Parser *p) {
     Token *while_start = pconsume(p);
     AstNode *cond = parse_paren_expr(p);
     AstNode *then_b = parse_any(p);
+
+    AstNode *chain = NULL;
+    if (is_kind(p, KW_ELSE)) {
+        Token *else_start = pconsume(p);
+        AstNode *else_body = parse_any(p);
+        Span *span = span_merge(else_start->span, current(p)->span);
+        AstNode *base = ast_new(p->nodes, span, else_start);
+        chain = ast_stmt(base, AST_ELSE, else_body);
+    }
+
     Span *span = span_merge(while_start->span, current(p)->span);
     AstNode *base = ast_new(p->nodes, span, while_start);
-    return ast_ctl(base, AST_WHILE, cond, then_b);
+    return ast_cond(base, AST_WHILE, cond, then_b, chain);
 }
 
 AstNode *parse_loop_stmt(Parser *p) {
     Token *loop_start = pconsume(p);
     AstNode *body = parse_any(p);
+
+    if (is_kind(p, KW_WHILE)) {
+        Token *while_start = pconsume(p);
+        AstNode *cond = parse_paren_expr(p);
+        Span *span = span_merge(while_start->span, current(p)->span);
+        AstNode *base = ast_new(p->nodes, span, loop_start);
+        return ast_ctl(base, AST_LOOP_WHILE, cond, body);
+    }
+
     Span *span = span_merge(loop_start->span, current(p)->span);
     AstNode *base = ast_new(p->nodes, span, loop_start);
     return ast_stmt(base, AST_LOOP, body);
