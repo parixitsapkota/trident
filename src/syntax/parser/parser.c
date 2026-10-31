@@ -26,10 +26,14 @@ AstNode *parse_any(Parser *p) {
     case PUNCT_O_BRACE: return parse_block_stmt(p);
     case KW_STRUCT: return parse_structure_stmt(p, AST_STRUCT);
     case KW_UNION: return parse_structure_stmt(p, AST_UNION);
+    case KW_TYPE: return parse_type_stmt(p);
     case KW_FUNC: return parse_func_stmt(p, false);
     case KW_RETURN: return parse_expr_stmt(p, AST_RETURN);
     case KW_BREAK: return parse_expr_stmt(p, AST_BREAK);
     case KW_CONTINUE: return parse_expr_stmt(p, AST_CONTINUE);
+    case KW_IF: return parse_if_stmt(p);
+    case KW_WHILE: return parse_while_stmt(p);
+    case KW_LOOP: return parse_loop_stmt(p);
     case IDENTIFIER_LIT:
         if (current(p)->next) {
             if (current(p)->next->kind == PUNCT_COLON) {

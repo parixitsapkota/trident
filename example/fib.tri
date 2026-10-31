@@ -3,7 +3,7 @@
 
 @extern "c" printf;
 
-func main() : i32 {
+func main() -> i32 {
     n : u8 = 10;
     t1 : u64 = 0;
     t2 : u64 = 1;
