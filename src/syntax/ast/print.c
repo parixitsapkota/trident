@@ -25,6 +25,7 @@ static const char *ast_kind_to_string(AstKind kind) {
         [AST_MEMBER] = "MEMBER",
         [AST_DREF_MEMBER] = "DREF_MEMBER",
         [AST_CALL] = "CALL",
+        [AST_COMPOUND] = "COMPOUND",
 
         /* statements */
         [AST_BLOCK] = "BLOCK",
@@ -90,6 +91,12 @@ static void print_node_label(const AstNode *node) {
     case AST_BOOL:
         printf(FGB_CYAN "%s: " FG_RED "%s" RESET, kind,
                node->as.bool_val ? "true" : "false");
+        break;
+
+    case AST_COMPOUND:
+        printf(FGB_MAGENTA "%s: " FG_GREEN " \"%s\"" FGB_CYAN " : " FG_RED "%s" RESET,
+               kind, node->as.compound.name,
+               node->as.compound.anonymous ? "anonymous" : "");
         break;
 
     case AST_UNARY:
@@ -167,6 +174,8 @@ static Kids get_kids(const AstNode *n) {
         kids_add(&k, n->as.binary.lhs);
         kids_add(&k, n->as.binary.rhs);
         break;
+
+    case AST_COMPOUND: kids_add(&k, n->as.compound.assignees); break;
 
     case AST_IF:
     case AST_ELSE_IF:

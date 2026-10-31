@@ -78,6 +78,15 @@ AstNode *ast_call(AstNode *base, const char *callee, AstNode *args, size_t argc)
     return base;
 }
 
+AstNode *ast_compound(AstNode *base, const char *name, AstNode *assignees,
+                      bool anonymous) {
+    base->kind = AST_COMPOUND;
+    base->as.compound.name = name;
+    base->as.compound.assignees = assignees;
+    base->as.compound.anonymous = anonymous;
+    return base;
+}
+
 AstNode *ast_stmt(AstNode *base, AstKind kind, AstNode *expr) {
     base->kind = kind;
     base->as.stmt.expr = expr;
