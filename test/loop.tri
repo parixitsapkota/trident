@@ -16,7 +16,7 @@ func compute(op: OpFunc, a: * i32, b: * i32) -> i32 {
 }
 
 func run_calculation(max_val: i32) -> i32 {
-    acc: Accumulator = Accumulator{value: 0, steps: 0};
+    acc: Accumulator = Accumulator{value = 0, steps = 0};
     acc_ptr: * Accumulator = &acc;
 
     i: i32 = 1;
