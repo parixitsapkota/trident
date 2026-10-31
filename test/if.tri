@@ -1,0 +1,13 @@
+// This is a test example
+// This code doesn't compile.
+
+func main() -> i32 {
+    mut var : i32 = 20;
+    if (var < 30)
+        var = 30;
+    else if (var > 10)
+        var = 20;
+    else
+        return 0;
+    return var;
+}

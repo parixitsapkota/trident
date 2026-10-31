@@ -1,0 +1,50 @@
+//@module example::math;
+
+struct Accumulator {
+    value: i32,
+    steps: i32,
+}
+
+// type OpFunc func(* i32, * i32) -> i32;
+
+func add(a: * i32, b: * i32) -> i32 {
+    return *a + *b;
+}
+
+func compute(op: OpFunc, a: * i32, b: * i32) -> i32 {
+    return op(a, b);
+}
+
+func run_calculation(max_val: i32) -> i32 {
+    acc: Accumulator = Accumulator{value: 0, steps: 0};
+    acc_ptr: * Accumulator = &acc;
+
+    i: i32 = 1;
+
+    loop {
+        if (i % 2 == 0)
+            acc_ptr->value = acc_ptr->value + (i * 2);
+        else
+            acc_ptr->value = acc_ptr->value + i;
+
+        acc_ptr->steps = acc_ptr->steps + 1;
+        i = i + 1;
+    } while (i <= max_val);
+
+    return acc_ptr->value;
+}
+
+func main() -> i32 {
+    target: i32 = 5;
+    calculated_result: i32 = run_calculation(target);
+
+    base: i32 = 10;
+    offset: i32 = 15;
+    pointer_sum: i32 = compute(add, &base, &offset);
+
+    if (pointer_sum > 20) {
+        return calculated_result + pointer_sum;
+    } else {
+        return calculated_result;
+    }
+}

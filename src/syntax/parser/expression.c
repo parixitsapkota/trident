@@ -195,12 +195,13 @@ AstNode *parse_call(Parser *p) {
 static AstNode *parse_primary(Parser *p) {
     TokenKind kind = current(p)->kind;
 
-    if (kind == IDENTIFIER_LIT && next(p) && next(p)->kind == PUNCT_O_PREN) {
+    if (kind == IDENTIFIER_LIT && next(p) && next(p)->kind == PUNCT_O_PREN)
         return parse_call(p);
-    }
-    if (kind == PUNCT_O_PREN) {
-        return parse_paren_expr(p);
-    }
+
+    if (kind == PUNCT_O_PREN) return parse_paren_expr(p);
+
+    if (kind == KW_IF) return parse_if_stmt(p);
+
     return parse_atom(p);
 }
 

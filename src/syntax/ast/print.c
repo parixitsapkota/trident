@@ -34,6 +34,7 @@ static const char *ast_kind_to_string(AstKind kind) {
         [AST_ELSE] = "ELSE",
         [AST_LOOP] = "LOOP",
         [AST_WHILE] = "WHILE",
+        [AST_LOOP_WHILE] = "LOOP_WHILE",
         [AST_MATCH] = "MATCH",
         [AST_CASE] = "CASE",
         [AST_BREAK] = "BREAK",
@@ -168,12 +169,14 @@ static Kids get_kids(const AstNode *n) {
         break;
 
     case AST_IF:
+    case AST_ELSE_IF:
+    case AST_WHILE:
+    case AST_LOOP_WHILE:
         kids_add(&k, n->as.cond.cond);
         kids_add(&k, n->as.cond.then_b);
         kids_add(&k, n->as.cond.else_b);
         break;
 
-    case AST_WHILE:
     case AST_CASE:
         kids_add(&k, n->as.ctl.expr);
         kids_add(&k, n->as.ctl.body);
