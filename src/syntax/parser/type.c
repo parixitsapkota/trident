@@ -17,7 +17,7 @@ bool parse_constness(Parser *p) {
     return false;
 }
 
-// TODO: use this kind if function globally.
+// TODO: Use this function globally.
 static AstNode *type_base(Parser *p, Token *first) {
     Span *span = span_merge(first->span, current(p)->last->span);
     return ast_new(p->nodes, span, first);
@@ -31,7 +31,7 @@ AstNode *parse_type(Parser *p) {
         bool mut = parse_constness(p);
         AstNode *inner = parse_type(p);
         if (!inner) return NULL;
-        return ast_pointer(type_base(p, t), AST_TYPE_POINTER, inner, mut);
+        return ast_type_pointer(type_base(p, t), AST_TYPE_POINTER, inner, mut);
     }
 
     if (is_kind(p, PUNCT_O_BRACKET)) {
@@ -42,7 +42,7 @@ AstNode *parse_type(Parser *p) {
             bool mut = parse_constness(p);
             AstNode *inner = parse_type(p);
             if (!inner) return NULL;
-            return ast_pointer(type_base(p, t), AST_TYPE_SLICE, inner, mut);
+            return ast_type_pointer(type_base(p, t), AST_TYPE_SLICE, inner, mut);
         }
 
         AstNode *len = parse_expr(p, PREC_NONE); // array
@@ -56,7 +56,21 @@ AstNode *parse_type(Parser *p) {
         }
         AstNode *inner = parse_type(p);
         if (!inner) return NULL;
-        return ast_array(type_base(p, t), inner, len);
+        return ast_type_array(type_base(p, t), inner, len);
+    }
+
+    if (is_kind(p, KW_FUNC)) {
+        pconsume(p);
+        expect_and_consume(p, PUNCT_O_PREN);
+        NodeChain args_types = {0};
+        while (!is_kind(p, PUNCT_C_PREN)) {
+            chain_append(&args_types, parse_type(p));
+            if (is_kind(p, PUNCT_COMMA)) pconsume(p);
+        }
+        expect_and_consume(p, PUNCT_C_PREN);
+        expect_and_consume(p, PUNCT_ARROW);
+        AstNode *return_type = parse_type(p);
+        return ast_type_func(type_base(p, t), args_types.first, return_type);
     }
 
     if (is_primitive_kind(t->kind) || is_kind(p, IDENTIFIER_LIT)) {

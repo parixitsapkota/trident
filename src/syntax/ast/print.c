@@ -46,11 +46,12 @@ static const char *ast_kind_to_string(AstKind kind) {
         [AST_LET] = "LET",
 
         /* type */
+        [AST_TYPE] = "TYPE",
         [AST_TYPE_NAME] = "TYPE_NAME",
         [AST_TYPE_POINTER] = "TYPE_POINTER",
         [AST_TYPE_SLICE] = "TYPE_SLICE",
         [AST_TYPE_ARRAY] = "TYPE_ARRAY",
-
+        [AST_TYPE_FUNC] = "TYPE_FUNC",
         [AST_STRUCT] = "STRUCT",
         [AST_UNION] = "UNION",
     };
@@ -66,6 +67,7 @@ static void print_node_label(const AstNode *node) {
     const char *kind = ast_kind_to_string(node->kind);
 
     switch (node->kind) {
+    case AST_TYPE_FUNC:
     case AST_PROGRAM: printf(FGB_CYAN "%s:" RESET, kind); break;
 
     case AST_INT:
@@ -117,6 +119,10 @@ static void print_node_label(const AstNode *node) {
 
     case AST_CALL:
         printf(FGB_MAGENTA "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.call.callee);
+        break;
+
+    case AST_TYPE:
+        printf(FGB_CYAN "%s: " FG_GREEN "\"%s\"" RESET, kind, node->as.type.name);
         break;
 
     case AST_TYPE_NAME:
@@ -200,6 +206,8 @@ static Kids get_kids(const AstNode *n) {
         kids_add(&k, n->as.let.expr);
         break;
 
+    case AST_TYPE: kids_add(&k, n->as.type.type); break;
+
     case AST_TYPE_ARRAY:
         kids_add(&k, n->as.array.inner);
         kids_add(&k, n->as.array.len);
@@ -207,6 +215,12 @@ static Kids get_kids(const AstNode *n) {
 
     case AST_TYPE_POINTER:
     case AST_TYPE_SLICE: kids_add(&k, n->as.pointer.inner); break;
+
+    case AST_TYPE_FUNC:
+        kids_add(&k, n->as.func_t.return_type);
+        kids_add(&k, NULL);
+        kids_add(&k, n->as.func_t.args);
+        break;
 
     case AST_UNION:
     case AST_STRUCT: kids_add(&k, n->as.structure.body); break;
