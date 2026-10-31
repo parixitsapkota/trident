@@ -202,8 +202,6 @@ static AstNode *parse_primary(Parser *p) {
 
     if (kind == KW_IF) return parse_if_stmt(p);
 
-    if (is_unary_prefix(current(p)->kind)) return parse_unary(p);
-
     return parse_atom(p);
 }
 
@@ -212,7 +210,7 @@ static AstNode *parse_expr_(Parser *p, Precedence prec) {
 
     Span *span_start = current(p)->span;
 
-    AstNode *left = parse_primary(p);
+    AstNode *left = parse_unary(p);
     if (!left) return NULL;
 
     while (!is_kind(p, END_OF_TOKEN)) {

@@ -110,30 +110,45 @@ AstNode *ast_ctl(AstNode *base, AstKind kind, AstNode *cond, AstNode *body) {
     return base;
 }
 
-AstNode *ast_structure(AstNode *base, AstKind kind, const char *name, AstNode *body) {
-    base->kind = kind;
-    base->as.structure.name = name;
-    base->as.structure.body = body;
-    return base;
-}
-
 AstNode *ast_type(AstNode *base, Token *type) {
     base->kind = AST_TYPE_NAME;
     base->as.type_tok = type;
     return base;
 }
 
-AstNode *ast_array(AstNode *base, AstNode *inner, AstNode *len) {
+AstNode *ast_type_array(AstNode *base, AstNode *inner, AstNode *len) {
     base->kind = AST_TYPE_ARRAY;
     base->as.array.inner = inner;
     base->as.array.len = len;
     return base;
 }
 
-AstNode *ast_pointer(AstNode *base, AstKind kind, AstNode *inner, bool mutable) {
+AstNode *ast_type_pointer(AstNode *base, AstKind kind, AstNode *inner, bool mutable) {
     base->kind = kind;
     base->as.pointer.inner = inner;
     base->as.pointer.mutable = mutable;
+    return base;
+}
+
+AstNode *ast_type_func(AstNode *base, AstNode *args, AstNode *return_type) {
+    base->kind = AST_TYPE_FUNC;
+    base->as.func_t.args = args;
+    base->as.func_t.return_type = return_type;
+    return base;
+}
+
+AstNode *ast_type_structure(AstNode *base, AstKind kind, const char *name,
+                            AstNode *body) {
+    base->kind = kind;
+    base->as.structure.name = name;
+    base->as.structure.body = body;
+    return base;
+}
+
+AstNode *ast_type_stmt(AstNode *base, const char *name, AstNode *type) {
+    base->kind = AST_TYPE;
+    base->as.type.name = name;
+    base->as.type.type = type;
     return base;
 }
 

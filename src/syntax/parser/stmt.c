@@ -139,7 +139,19 @@ AstNode *parse_structure_stmt(Parser *p, AstKind kind) {
 
     Span *span = span_merge(start, current(p)->span);
     AstNode *base = ast_new(p->nodes, span, current(p));
-    return ast_structure(base, kind, name, body);
+    return ast_type_structure(base, kind, name, body);
+}
+
+AstNode *parse_type_stmt(Parser *p) {
+    Span *start = pconsume(p)->span;
+
+    Token *name_tok = expect_and_consume(p, IDENTIFIER_LIT);
+    AstNode *type = parse_type(p);
+    expect_and_consume(p, PUNCT_SEMICOLON);
+
+    Span *span = span_merge(start, current(p)->span);
+    AstNode *base = ast_new(p->nodes, span, current(p));
+    return ast_type_stmt(base, name_tok ? name_tok->lexeme : NULL, type);
 }
 
 AstNode *parse_if_stmt(Parser *p) {
