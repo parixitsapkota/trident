@@ -70,3 +70,5 @@ AstNode *parse_func_stmt(Parser *p, bool public);
 AstNode *parse_block_stmt(Parser *p);
 
 AstNode *parse_structure_stmt(Parser *p, AstKind kind);
+
+AstNode *parse_type_stmt(Parser *p);

@@ -7,8 +7,10 @@ struct Type {
         i : *mut i32;
         f : *mut f128;
     };
-    func get_var() : i32 return var;
+    func get_var() -> i32 return var;
 };
 
 var : Type;
 var.val->i = &var;
+
+type OpFunc func(i32, i32) -> i32;
